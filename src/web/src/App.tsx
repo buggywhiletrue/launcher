@@ -7,7 +7,7 @@ import { GithubIcon } from "lucide-react";
 import { useAppState } from "./AppState";
 import { ServerList } from "./serverlist/ServerList";
 import { DownloadSheet } from "./download/DownloadSheet";
-import { DiscordWidget } from "./Discord";
+import Announcement from "./Announcement";
 import { MusicPlayer } from "./MusicPlayer";
 import { ModsSheet } from "./mods/ModsSheet";
 import { DownloadProgress } from "./download/DownloadProgress";
@@ -121,7 +121,7 @@ function App() {
                                 <ServerList />
                             </div>
                             <div className="w-[32rem]">
-                                <DiscordWidget guildId="1233581457470128209" />
+                                <Announcement title="공지사항" message={"서버 점검: 5월 20일 02:00~04:00\n최신 패치 확인 후 재시작 해주세요."} />
                             </div>
                         </div>
                     </div>
