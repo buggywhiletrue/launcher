@@ -139,13 +139,13 @@ return (
                             <div className="flex h-full w-full flex-col justify-between">
                                 <ServerList />
                                 
-                                {/* 올인원 런처: 디스코드 버튼 추가 영역 */}
+                                {/* 다운로드 활성화 영역 */}
                                 <div className="p-4">
                                     <button 
                                         onClick={() => window.open('https://discord.gg/연구원님의디스코드링크', '_blank')}
                                         className="bg-[#5865F2] hover:bg-[#4752C4] text-white px-6 py-3 rounded-lg font-bold transition-colors flex items-center gap-2 shadow-lg"
                                     >
-                                        <span>Discord 커뮤니티 참여</span>
+                                        <span>최신 리소스 업데이트</span>
                                     </button>
                                 </div>
                                 
