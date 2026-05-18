@@ -85,8 +85,8 @@ const config: ForgeConfig = {
         name: "@electron-forge/publisher-github",
         config: {
             repository: {
-                owner: "shuabritze",
-                name: "mushroom-launcher",
+                owner: "buggywhiletrue",
+                name: "launcher",
             },
             prerelease: true,
         },

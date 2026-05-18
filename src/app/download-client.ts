@@ -38,52 +38,59 @@ ipcMain.handle("download-client", async (_, provider) => {
     currentFileDownload = "";
     downloadEta = -1;
 
-    if (provider === "steam") {
-        return new Promise<void>(async (resolve, reject) => {
-            try {
-                await DownloadClient(APP_CONFIG.clientPath, (err) => {
-                    if (err) {
-                        logger.error(err);
-                        reject(err);
-                        MAIN_WINDOW.webContents.send("download-error", err);
-                        return;
-                    }
+    if (provider === "xml") {
+        return new Promise<void>((resolve, reject) => {
+
+            (async () => {
+                try {
+                    await DownloadClient(APP_CONFIG.clientPath, (err) => {
+                        if (err) {
+                            logger.error(err);
+                            reject(err);
+                            MAIN_WINDOW.webContents.send("download-error", err);
+                            return;
+                        }
+                        resolve();
+                    });
+                } catch (e) {
+                    logger.error(e);
+                    reject(e);
+                } finally {
+                    MAIN_WINDOW.webContents.send("download-complete");
                     resolve();
-                });
-            } catch (e) {
-                logger.error(e);
-                reject(e);
-            } finally {
-                MAIN_WINDOW.webContents.send("download-complete");
-                resolve();
-            }
+                }
+            })();
         });
     }
 
     if (provider === "github") {
-        return new Promise<void>(async (resolve, reject) => {
-            try {
-                await GithubClient(APP_CONFIG.clientPath, (err) => {
-                    if (err) {
-                        logger.error(err);
+        return new Promise<void>((resolve, reject) => {
+
+            (async () => {
+                try {
+                    await DownloadClient(APP_CONFIG.clientPath, (err) => {
+                        if (err) {
+                            logger.error(err);
+                            reject(err);
+                            MAIN_WINDOW.webContents.send("download-error", err);
+                            return;
+                        }
                         resolve();
-                        return;
-                    }
+                    });
+                } catch (e) {
+                    logger.error(e);
+                    reject(e);
+                } finally {
+                    MAIN_WINDOW.webContents.send("download-complete");
                     resolve();
-                });
-            } catch (e) {
-                logger.error(e);
-                reject(e);
-            } finally {
-                MAIN_WINDOW.webContents.send("download-complete");
-                resolve();
-            }
+                }
+            })();
         });
     }
 
     if (provider === "direct") {
         const CLIENT_URL =
-            "aHR0cDovL3RhZGV1Y2NpLmRldi9tYXBsZXN0b3J5XzJfY2xpZW50Ljd6";
+            "aHR0cHM6Ly8xZHJ2Lm1zL3UvYy83YTM5NWRlZGY2ODBlNDU2L0lRUW55OWp2clBjOVFhX3Zyd1ZfR2J4c0FYNjdVNlB3OVN0MG13U0tQVkxsMkRrP2Rvd25sb2FkPTE=";
 
         // Decode the URL
         const decodedUrl = Buffer.from(CLIENT_URL, "base64").toString("utf-8");
@@ -226,9 +233,9 @@ export const DownloadClient = async (
     // Download the client
     ActiveDownloadProcess = spawn(`dotnet`, args, {});
 
-    let startTime = Date.now();
-    let lastPercent = 0;
-    let percentDiffs = [] as { diff: number; time: number }[];
+        const startTime = Date.now();
+        let lastPercent = 0;
+        const percentDiffs = [] as { diff: number; time: number }[];
 
     const etaInterval = setInterval(() => {
         const timeElapsed = Date.now() - startTime;

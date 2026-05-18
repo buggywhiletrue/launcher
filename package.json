@@ -1,8 +1,8 @@
 {
-    "name": "mushroom-launcher",
-    "productName": "Mushroom Launcher",
-    "version": "2.0.2",
-    "description": "Mushy Game Launcher",
+    "name": "maplestory2-launcher",
+    "productName": "MapleStory2 Launcher",
+    "version": "1.2.0.2",
+    "description": "MS2 Launcher edited by Buggy",
     "main": ".vite/build/main.js",
     "private": true,
     "scripts": {
@@ -16,12 +16,12 @@
     },
     "keywords": [],
     "author": {
-        "name": "shuabritze",
-        "email": "163845127+shuabritze@users.noreply.github.com"
+        "name": "buggywhiletrue",
+        "email": "87579563+buggywhiletrue@users.noreply.github.com"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/shuabritze/mushroom-launcher.git"
+        "url": "https://github.com/buggywhiletrue/launcher.git"
     },
     "license": "MIT",
     "devDependencies": {
