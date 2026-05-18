@@ -39,27 +39,20 @@ ipcMain.handle("download-client", async (_, provider) => {
     downloadEta = -1;
 
     if (provider === "xml") {
-        return new Promise<void>((resolve, reject) => {
+        const CLIENT_URL =
+            "aHR0cHM6Ly9naXRodWIuY29tL2J1Z2d5d2hpbGV0cnVlL1htbC5naXQ=";
 
-            (async () => {
-                try {
-                    await DownloadClient(APP_CONFIG.clientPath, (err) => {
-                        if (err) {
-                            logger.error(err);
-                            reject(err);
-                            MAIN_WINDOW.webContents.send("download-error", err);
-                            return;
-                        }
-                        resolve();
-                    });
-                } catch (e) {
-                    logger.error(e);
-                    reject(e);
-                } finally {
-                    MAIN_WINDOW.webContents.send("download-complete");
-                    resolve();
-                }
-            })();
+        // Decode the URL
+        const decodedUrl = Buffer.from(CLIENT_URL, "base64").toString("utf-8");
+
+        logger.info("Direct download link:", decodedUrl);
+
+        await shell.openExternal(decodedUrl);
+        logger.info("Direct download link opened in browser:", decodedUrl);
+        MAIN_WINDOW.webContents.send("download-complete");
+
+        return new Promise<void>((resolve) => {
+            resolve();
         });
     }
 
