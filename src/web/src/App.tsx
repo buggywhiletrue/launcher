@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-
+// eslint-disable-next-line import/no-unresolved
 import { backgrounds } from "../assets/backgrounds.mjs";
+// eslint-disable-next-line import/no-unresolved
 import { characters } from "../assets/characters.mjs";
 import { SettingsSheet } from "./SettingsSheet";
 import { GithubIcon } from "lucide-react";
@@ -97,7 +98,7 @@ function App() {
                             <ModsSheet />
                             <SettingsSheet />
                             <a
-                                href="https://github.com/shuabritze/mushroom-launcher"
+                                href="https://github.com/buggywhiletrue/launcher"
                                 target="_blank"
                                 className="rounded-md p-2 hover:bg-gray-200/15"
                             >

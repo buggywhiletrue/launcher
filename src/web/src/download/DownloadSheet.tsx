@@ -149,14 +149,14 @@ export const DownloadSheet = () => {
                                 >
                                     {t(
                                         "download.install.steam",
-                                        "Download via Steam",
+                                        "Download Xml only",
                                     )}{" "}
                                     <Download />
                                 </Button>
                                 <small>
                                     {t(
                                         "download.install.steam.info",
-                                        "Uses DepotDownloader to download from Steam.",
+                                        "Downloads when some of the data files are corrupted.",
                                     )}
                                 </small>
                             </div>
@@ -175,7 +175,7 @@ export const DownloadSheet = () => {
                                 <small>
                                     {t(
                                         "download.install.github.info",
-                                        "Downloads from Github releases. May be taken down.",
+                                        "Downloads from Github releases. (Recommended)",
                                     )}
                                 </small>
                             </div>
@@ -186,14 +186,14 @@ export const DownloadSheet = () => {
                                 >
                                     {t(
                                         "download.install.direct",
-                                        "Direct Link",
+                                        "Download via Onedrive",
                                     )}{" "}
                                     <Link />
                                 </Button>
                                 <small>
                                     {t(
                                         "download.install.direct.info",
-                                        "Direct link to the client. May be taken down.",
+                                        "Direct link to the client. You need to decompress it yourself.",
                                     )}
                                 </small>
                             </div>
