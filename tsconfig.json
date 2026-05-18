@@ -2,7 +2,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "nodenext",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -10,11 +10,11 @@
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "dist",
-    "moduleResolution": "bundler",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["vite/client"],
+    "types": ["vite/client"]
   }
 }

@@ -1,7 +1,7 @@
 {
     "name": "maplestory2-launcher",
     "productName": "MapleStory2 Launcher",
-    "version": "1.2.0.2",
+    "version": "2.0.2",
     "description": "MS2 Launcher edited by Buggy",
     "main": ".vite/build/main.js",
     "private": true,

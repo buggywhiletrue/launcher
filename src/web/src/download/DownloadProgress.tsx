@@ -42,8 +42,8 @@ export const DownloadProgress = () => {
             setProgress(0);
             setFile("");
             setEta(-1);
-
-            toast.error(err || "Failed to download client");
+            const errorMessage = err?.message || (typeof err === 'string' ? err : String(err));
+            toast.error(errorMessage || "Failed to download client");
         });
 
         return () => {
