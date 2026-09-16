@@ -1,0 +1,13 @@
+{
+    "schemaVersion": 1,
+    "notices": [
+        {
+            "id": "client-3.0.0",
+            "type": "client",
+            "title": "클라이언트 3.0.0 공개",
+            "summary": "GitHub Releases 기반 자동 설치와 파일 무결성 검증을 지원하는 클라이언트가 공개되었습니다.",
+            "publishedAt": "2026-09-16T09:34:50Z",
+            "url": "https://github.com/buggywhiletrue/client/releases/tag/client-v3.0.0"
+        }
+    ]
+}
