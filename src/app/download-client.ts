@@ -1,10 +1,8 @@
-import { ipcMain } from "electron";
-import { app, shell } from "electron";
+import { app, ipcMain, shell } from "electron";
 
 import path from "path";
 import fs from "fs";
 import axios from "axios";
-import MultiStream, { FactoryStream, PassThrough } from "multistream";
 import unzipper from "unzipper";
 
 import logger from "electron-log/main";
@@ -13,12 +11,11 @@ import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { t } from "i18next";
 import { APP_CONFIG } from "./config";
 import { MAIN_WINDOW } from "./app";
-import { Readable } from "stream";
 import { pipeline } from "stream/promises";
+import { createHash } from "crypto";
 
 let downloadProgress = 0;
 let currentFileDownload = "";
-let downloadFileName = "";
 let downloadEta = -1;
 
 ipcMain.handle("get-download-progress", async () => {
@@ -56,47 +53,34 @@ ipcMain.handle("download-client", async (_, provider) => {
         });
     }
 
-    if (provider === "github") {
-        return new Promise<void>((resolve, reject) => {
-
-            (async () => {
-                try {
-                    await DownloadClient(APP_CONFIG.clientPath, (err) => {
-                        if (err) {
-                            logger.error(err);
-                            reject(err);
-                            MAIN_WINDOW.webContents.send("download-error", err);
-                            return;
-                        }
-                        resolve();
-                    });
-                } catch (e) {
-                    logger.error(e);
-                    reject(e);
-                } finally {
-                    MAIN_WINDOW.webContents.send("download-complete");
-                    resolve();
-                }
-            })();
-        });
+    if (provider === "automatic") {
+        try {
+            await GithubClient(APP_CONFIG.clientPath);
+            MAIN_WINDOW.webContents.send("download-complete");
+        } catch (err) {
+            logger.error("Automatic client download failed", err);
+            MAIN_WINDOW.webContents.send("download-error", err);
+            throw err;
+        }
+        return;
     }
 
-    if (provider === "direct") {
-        const CLIENT_URL =
-            "aHR0cHM6Ly8xZHJ2Lm1zL3UvYy83YTM5NWRlZGY2ODBlNDU2L0lRUW55OWp2clBjOVFhX3Zyd1ZfR2J4c0FYNjdVNlB3OVN0MG13U0tQVkxsMkRrP2Rvd25sb2FkPTE=";
+    if (provider === "github-releases") {
+        const releasesUrl =
+            "https://github.com/buggywhiletrue/client/releases/latest";
+        await shell.openExternal(releasesUrl);
+        MAIN_WINDOW.webContents.send("download-complete");
+        return;
+    }
 
-        // Decode the URL
-        const decodedUrl = Buffer.from(CLIENT_URL, "base64").toString("utf-8");
-
-        logger.info("Direct download link:", decodedUrl);
-
-        await shell.openExternal(decodedUrl);
-        logger.info("Direct download link opened in browser:", decodedUrl);
+    if (provider === "drive") {
+        const driveUrl =
+            "https://1drv.ms/u/c/7a395dedf680e456/IQQny9jvrPc9Qa_vrwV_GbxsAX67U6Pw9St0mwSKPVLl2Dk";
+        await shell.openExternal(driveUrl);
+        logger.info("Drive page opened in browser:", driveUrl);
         MAIN_WINDOW.webContents.send("download-complete");
 
-        return new Promise<void>((resolve) => {
-            resolve();
-        });
+        return;
     }
 
     return new Promise<void>((resolve, reject) => {
@@ -117,17 +101,13 @@ const DOWNLOADER_EXE = app.isPackaged
 const MANIFEST_INFO = app.isPackaged
     ? path.join(process.resourcesPath, "./560381_3190888022545443868.manifest")
     : path.join(
-        __dirname,
-        "../../src/downloader/560381_3190888022545443868.manifest",
-    );
+          __dirname,
+          "../../src/downloader/560381_3190888022545443868.manifest",
+      );
 
 const DEPOT_KEY = app.isPackaged
     ? path.join(process.resourcesPath, "./depot.key")
     : path.join(__dirname, "../../src/downloader/depot.key");
-const KEY = Buffer.from(
-    "9bdb5693b8cbe239bd87eb147abacb8ae4aa446744d1ca4a323bac611174bc8c",
-    "hex",
-);
 
 let ActiveDownloadProcess: ChildProcessWithoutNullStreams | null;
 
@@ -226,9 +206,9 @@ export const DownloadClient = async (
     // Download the client
     ActiveDownloadProcess = spawn(`dotnet`, args, {});
 
-        const startTime = Date.now();
-        let lastPercent = 0;
-        const percentDiffs = [] as { diff: number; time: number }[];
+    const startTime = Date.now();
+    let lastPercent = 0;
+    const percentDiffs = [] as { diff: number; time: number }[];
 
     const etaInterval = setInterval(() => {
         const timeElapsed = Date.now() - startTime;
@@ -310,165 +290,319 @@ export const DownloadClient = async (
     ActiveDownloadProcess = null;
 };
 
-// https://github.com/shuabritze/adventure-island-online-2/releases/latest
-const GITHUB_CHUNKS = [
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.001",
-        fileName: "MapleStory2-Client.zip.001",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.002",
-        fileName: "MapleStory2-Client.zip.002",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.003",
-        fileName: "MapleStory2-Client.zip.003",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.004",
-        fileName: "MapleStory2-Client.zip.004",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.005",
-        fileName: "MapleStory2-Client.zip.005",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.006",
-        fileName: "MapleStory2-Client.zip.006",
-    },
-] as {
+const CLIENT_LATEST_URL =
+    "https://raw.githubusercontent.com/buggywhiletrue/client/main/latest.json";
+
+interface ClientLatest {
+    schemaVersion: number;
+    clientVersion: string;
+    releaseTag: string;
+    manifest: {
+        url: string;
+        size: number;
+        sha256: string;
+    };
+    releaseUrl: string;
+}
+
+interface ClientAsset {
+    name: string;
+    size: number;
+    sha256: string;
     url: string;
-    fileName: string;
-}[];
+}
 
-const GithubClient = async (clientPath: string, cb: (err: Error) => void) => {
-    // ensure clientPath exists
-    if (!fs.existsSync(clientPath)) {
-        fs.mkdirSync(clientPath, { recursive: true });
+interface ClientFile {
+    path: string;
+    size: number;
+    sha256: string;
+    delivery: "file" | "parts";
+    assets: ClientAsset[];
+}
+
+interface BundleFile {
+    path: string;
+    size: number;
+    sha256: string;
+    installMode: "replace" | "ifMissing";
+}
+
+interface ClientBundle {
+    id: string;
+    asset: string;
+    size: number;
+    sha256: string;
+    url: string;
+    files: BundleFile[];
+}
+
+interface ClientManifest {
+    schemaVersion: number;
+    clientVersion: string;
+    releaseTag: string;
+    totalDownloadBytes: number;
+    files: ClientFile[];
+    bundles: ClientBundle[];
+    installIfMissing: string[];
+    delete: string[];
+}
+
+const resolveClientPath = (clientPath: string, relativePath: string) => {
+    const resolved = path.resolve(clientPath, relativePath);
+    const root = path.resolve(clientPath) + path.sep;
+    if (!resolved.startsWith(root)) {
+        throw new Error(`Unsafe client path: ${relativePath}`);
     }
+    return resolved;
+};
 
-    const chunkReqs: any[] = [];
-    let totalLength = 0;
-    // Get total download size
-    for (const chunk of GITHUB_CHUNKS) {
-        const res = await axios({
-            method: "HEAD",
-            url: chunk.url,
-        })
+const normalizeHash = (hash: string) => hash.toLowerCase();
 
-        const contentLength = res.headers["content-length"];
-        if (contentLength) {
-            totalLength += parseInt(contentLength, 10);
-        }
+const hashFile = async (filePath: string) => {
+    const hash = createHash("sha256");
+    await pipeline(fs.createReadStream(filePath), hash);
+    return hash.digest("hex");
+};
 
-        // chunk the downloads
-        const chunkSize = 256 * 1024 * 1024; // 256mb
-        const chunkCount = Math.ceil(contentLength / chunkSize);
-
-
-        for (let i = 0; i < chunkCount; i++) {
-            const start = i * chunkSize;
-            const end = Math.min(start + chunkSize - 1, contentLength - 1);
-            const rangeHeader = `bytes=${start}-${end}`;
-            chunkReqs.push({
-                url: chunk.url,
-                headers: {
-                    "Accept": "application/octet-stream",
-                    "Range": rangeHeader,
-                },
-                start,
-                end,
-            });
-        }
-    }
-
-    let chunkIdx = 0;
-    const resFactory: FactoryStream = async (callback: (arg0: Error, arg1: Readable) => void) => {
-        if (chunkIdx >= chunkReqs.length) {
-            // all done
-            callback(null, null);
-            return;
-        }
-
-        const req = chunkReqs[chunkIdx];
-        chunkIdx++;
-        try {
-            const res = await axios({
-                method: "GET",
-                url: req.url,
-                headers: req.headers,
-                responseType: "stream",
-                timeout: 60 * 60 * 1000, // 1 hour
-            });
-
-            if (res.status !== 206) {
-                logger.error(
-                    `Error downloading ${req.url}: ${res.status} ${res.statusText}`,
-                );
-                callback(new Error("Error downloading " + req.url), null);
-                MAIN_WINDOW.webContents.send("download-error", "Error downloading " + req.url);
-                return;
-            }
-
-            logger.info("Downloading chunk", req.url, res.status, req.headers);
-
-            callback(null, res.data);
-        } catch (err) {
-            logger.error("Error downloading chunk", err);
-            callback(err, null);
-            MAIN_WINDOW.webContents.send("download-error", err);
-        }
-    }
-
-    const ms = new MultiStream(resFactory);
-
-    // 1gb buffer
-    const databuffer = new PassThrough({ highWaterMark: 1024 * 1024 * 1024 });
-
-    ms.pipe(databuffer);
-
-    let unpackedBytes = 0;
-    databuffer.on("data", (data) => {
-        unpackedBytes += data.length;
-        downloadProgress = (
-            (unpackedBytes / totalLength) * 100
+const isCurrentFile = async (filePath: string, file: ClientFile) => {
+    try {
+        if (fs.statSync(filePath).size !== file.size) return false;
+        return (
+            normalizeHash(await hashFile(filePath)) ===
+            normalizeHash(file.sha256)
         );
+    } catch {
+        return false;
+    }
+};
 
-        currentFileDownload = `${downloadProgress.toFixed(2)}% ${downloadFileName}`;
+const isCurrentBundleFile = async (filePath: string, file: BundleFile) =>
+    isCurrentFile(filePath, {
+        ...file,
+        delivery: "file",
+        assets: [],
     });
 
-    const unzipStream = unzipper.Parse({ concurrency: 6 });
-    unzipStream.on("entry", (entry: unzipper.Entry) => {
-        downloadFileName = entry.path;
+const downloadAsset = async (
+    asset: ClientAsset,
+    tempPath: string,
+    onData: (bytes: number) => void,
+) => {
+    const response = await axios({
+        method: "GET",
+        url: asset.url,
+        responseType: "stream",
+        timeout: 60 * 60 * 1000,
+        maxRedirects: 10,
+        headers: { Accept: "application/octet-stream" },
+    });
+    const hash = createHash("sha256");
+    response.data.on("data", (chunk: Buffer) => {
+        hash.update(chunk);
+        onData(chunk.length);
+    });
+    await pipeline(response.data, fs.createWriteStream(tempPath));
 
-        if (entry.type === "Directory") {
-            // if entry is a directory, create it
-            fs.mkdirSync(path.join(clientPath, entry.path), {
-                recursive: true,
-            });
-            entry.autodrain();
-            return;
+    const actualDigest = hash.digest("hex");
+    if (normalizeHash(actualDigest) !== normalizeHash(asset.sha256)) {
+        throw new Error(`Checksum mismatch: ${asset.name}`);
+    }
+};
+
+const getJson = async <T>(url: string) => {
+    const response = await axios.get<T>(url, {
+        timeout: 60 * 1000,
+        headers: { Accept: "application/json" },
+        responseType: "json",
+    });
+    return response.data;
+};
+
+const installBundle = async (
+    bundle: ClientBundle,
+    zipPath: string,
+    clientPath: string,
+) => {
+    const archive = await unzipper.Open.file(zipPath);
+    const entries = new Map(
+        archive.files
+            .filter((entry) => entry.type === "File")
+            .map((entry) => [entry.path.replace(/\\/g, "/"), entry]),
+    );
+
+    for (const file of bundle.files) {
+        const destination = resolveClientPath(clientPath, file.path);
+        if (file.installMode === "ifMissing" && fs.existsSync(destination)) {
+            continue;
         }
 
-        // create parent directory if it doesn't exist
-        const parentDir = path.join(
-            clientPath,
-            path.dirname(entry.path),
+        const entry = entries.get(file.path.replace(/\\/g, "/"));
+        if (!entry) {
+            throw new Error(`Missing file in ${bundle.asset}: ${file.path}`);
+        }
+
+        const partialPath = `${destination}.partial`;
+        fs.mkdirSync(path.dirname(destination), { recursive: true });
+        if (fs.existsSync(partialPath)) fs.unlinkSync(partialPath);
+        await pipeline(entry.stream(), fs.createWriteStream(partialPath));
+
+        if (!(await isCurrentBundleFile(partialPath, file))) {
+            throw new Error(`Bundle file checksum mismatch: ${file.path}`);
+        }
+        if (fs.existsSync(destination)) fs.unlinkSync(destination);
+        fs.renameSync(partialPath, destination);
+    }
+};
+
+const GithubClient = async (clientPath: string) => {
+    if (!clientPath) {
+        throw new Error("Client install path is not configured");
+    }
+    fs.mkdirSync(clientPath, { recursive: true });
+
+    const latest = await getJson<ClientLatest>(
+        `${CLIENT_LATEST_URL}?t=${Date.now()}`,
+    );
+    if (latest.schemaVersion !== 1) {
+        throw new Error(`Unsupported latest schema: ${latest.schemaVersion}`);
+    }
+
+    const manifestResponse = await axios.get<ArrayBuffer>(latest.manifest.url, {
+        timeout: 60 * 1000,
+        responseType: "arraybuffer",
+    });
+    const manifestBuffer = Buffer.from(manifestResponse.data);
+    const manifestHash = createHash("sha256")
+        .update(manifestBuffer)
+        .digest("hex");
+    if (normalizeHash(manifestHash) !== normalizeHash(latest.manifest.sha256)) {
+        throw new Error("Client manifest checksum mismatch");
+    }
+    const manifest = JSON.parse(
+        manifestBuffer.toString("utf-8"),
+    ) as ClientManifest;
+    if (
+        manifest.schemaVersion !== 1 ||
+        manifest.clientVersion !== latest.clientVersion ||
+        manifest.releaseTag !== latest.releaseTag
+    ) {
+        throw new Error("Client manifest does not match latest.json");
+    }
+
+    const cachePath = path.join(clientPath, ".launcher-downloads");
+    fs.mkdirSync(cachePath, { recursive: true });
+    const filesToInstall: ClientFile[] = [];
+    for (const file of manifest.files) {
+        const destination = resolveClientPath(clientPath, file.path);
+        const preserveExisting =
+            manifest.installIfMissing.includes(file.path) &&
+            fs.existsSync(destination);
+        if (!preserveExisting && !(await isCurrentFile(destination, file))) {
+            filesToInstall.push(file);
+        }
+    }
+    const bundlesToInstall: ClientBundle[] = [];
+    for (const bundle of manifest.bundles) {
+        let needsInstall = false;
+        for (const file of bundle.files) {
+            const destination = resolveClientPath(clientPath, file.path);
+            if (
+                file.installMode === "ifMissing" &&
+                fs.existsSync(destination)
+            ) {
+                continue;
+            }
+            if (!(await isCurrentBundleFile(destination, file))) {
+                needsInstall = true;
+                break;
+            }
+        }
+        if (needsInstall) bundlesToInstall.push(bundle);
+    }
+    const fileDownloadBytes = filesToInstall.reduce(
+        (sum, file) =>
+            sum +
+            file.assets.reduce((assetSum, asset) => assetSum + asset.size, 0),
+        0,
+    );
+    const totalBytes =
+        fileDownloadBytes +
+        bundlesToInstall.reduce((sum, bundle) => sum + bundle.size, 0);
+    const startedAt = Date.now();
+    let downloadedBytes = 0;
+
+    const updateProgress = (assetName: string, bytes: number) => {
+        downloadedBytes += bytes;
+        downloadProgress = totalBytes
+            ? (downloadedBytes / totalBytes) * 100
+            : 100;
+        currentFileDownload = assetName;
+        const elapsedSeconds = Math.max((Date.now() - startedAt) / 1000, 1);
+        const bytesPerSecond = downloadedBytes / elapsedSeconds;
+        downloadEta = Math.max(
+            Math.round((totalBytes - downloadedBytes) / bytesPerSecond),
+            0,
         );
-        if (!fs.existsSync(parentDir)) {
-            fs.mkdirSync(parentDir, { recursive: true });
+    };
+
+    try {
+        for (const file of filesToInstall) {
+            const destination = resolveClientPath(clientPath, file.path);
+            const partialPath = `${destination}.partial`;
+            fs.mkdirSync(path.dirname(destination), { recursive: true });
+            if (fs.existsSync(partialPath)) fs.unlinkSync(partialPath);
+
+            for (const asset of file.assets) {
+                const tempPath = path.join(
+                    cachePath,
+                    asset.name.replace(/[^a-z0-9._-]/gi, "_"),
+                );
+                await downloadAsset(asset, tempPath, (bytes) =>
+                    updateProgress(asset.name, bytes),
+                );
+                await pipeline(
+                    fs.createReadStream(tempPath),
+                    fs.createWriteStream(partialPath, { flags: "a" }),
+                );
+                fs.unlinkSync(tempPath);
+            }
+
+            if (!(await isCurrentFile(partialPath, file))) {
+                throw new Error(
+                    `Installed file checksum mismatch: ${file.path}`,
+                );
+            }
+            if (fs.existsSync(destination)) fs.unlinkSync(destination);
+            fs.renameSync(partialPath, destination);
         }
 
-        // write file
-        const ws = fs.createWriteStream(path.join(clientPath, entry.path));
-        entry.pipe(ws);
-    })
-        .on("close", () => {
-            logger.info("Unzipped files to", clientPath);
-        })
-        .on("error", (err) => {
-            logger.error("Error unzipping files", err);
-        });
+        for (const bundle of bundlesToInstall) {
+            const asset: ClientAsset = {
+                name: bundle.asset,
+                size: bundle.size,
+                sha256: bundle.sha256,
+                url: bundle.url,
+            };
+            const tempPath = path.join(
+                cachePath,
+                bundle.asset.replace(/[^a-z0-9._-]/gi, "_"),
+            );
+            await downloadAsset(asset, tempPath, (bytes) =>
+                updateProgress(asset.name, bytes),
+            );
+            await installBundle(bundle, tempPath, clientPath);
+            fs.unlinkSync(tempPath);
+        }
 
-    await pipeline(databuffer, unzipStream);
+        for (const relativePath of manifest.delete) {
+            const obsoletePath = resolveClientPath(clientPath, relativePath);
+            fs.rmSync(obsoletePath, { recursive: true, force: true });
+        }
+
+        downloadProgress = 100;
+        downloadEta = 0;
+        logger.info(`Installed GitHub client release ${manifest.releaseTag}`);
+    } finally {
+        fs.rmSync(cachePath, { recursive: true, force: true });
+    }
 };
