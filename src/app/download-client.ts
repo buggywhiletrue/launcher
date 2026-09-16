@@ -1,10 +1,8 @@
-import { ipcMain } from "electron";
-import { app, shell } from "electron";
+import { app, ipcMain, shell } from "electron";
 
 import path from "path";
 import fs from "fs";
 import axios from "axios";
-import MultiStream, { FactoryStream, PassThrough } from "multistream";
 import unzipper from "unzipper";
 
 import logger from "electron-log/main";
@@ -13,12 +11,11 @@ import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { t } from "i18next";
 import { APP_CONFIG } from "./config";
 import { MAIN_WINDOW } from "./app";
-import { Readable } from "stream";
 import { pipeline } from "stream/promises";
+import { createHash } from "crypto";
 
 let downloadProgress = 0;
 let currentFileDownload = "";
-let downloadFileName = "";
 let downloadEta = -1;
 
 ipcMain.handle("get-download-progress", async () => {
@@ -56,32 +53,26 @@ ipcMain.handle("download-client", async (_, provider) => {
         });
     }
 
-    if (provider === "github") {
-        return new Promise<void>((resolve, reject) => {
-
-            (async () => {
-                try {
-                    await DownloadClient(APP_CONFIG.clientPath, (err) => {
-                        if (err) {
-                            logger.error(err);
-                            reject(err);
-                            MAIN_WINDOW.webContents.send("download-error", err);
-                            return;
-                        }
-                        resolve();
-                    });
-                } catch (e) {
-                    logger.error(e);
-                    reject(e);
-                } finally {
-                    MAIN_WINDOW.webContents.send("download-complete");
-                    resolve();
-                }
-            })();
-        });
+    if (provider === "automatic") {
+        try {
+            await GithubClient(APP_CONFIG.clientPath);
+            MAIN_WINDOW.webContents.send("download-complete");
+        } catch (err) {
+            logger.error("Automatic client download failed", err);
+            MAIN_WINDOW.webContents.send("download-error", err);
+            throw err;
+        }
+        return;
     }
 
-    if (provider === "direct") {
+    if (provider === "github-releases") {
+        const releasesUrl = "https://github.com/buggywhiletrue/client/releases";
+        await shell.openExternal(releasesUrl);
+        MAIN_WINDOW.webContents.send("download-complete");
+        return;
+    }
+
+    if (provider === "drive") {
         const CLIENT_URL =
             "aHR0cHM6Ly8xZHJ2Lm1zL3UvYy83YTM5NWRlZGY2ODBlNDU2L0lRUW55OWp2clBjOVFhX3Zyd1ZfR2J4c0FYNjdVNlB3OVN0MG13U0tQVkxsMkRrP2Rvd25sb2FkPTE=";
 
@@ -94,9 +85,7 @@ ipcMain.handle("download-client", async (_, provider) => {
         logger.info("Direct download link opened in browser:", decodedUrl);
         MAIN_WINDOW.webContents.send("download-complete");
 
-        return new Promise<void>((resolve) => {
-            resolve();
-        });
+        return;
     }
 
     return new Promise<void>((resolve, reject) => {
@@ -117,9 +106,9 @@ const DOWNLOADER_EXE = app.isPackaged
 const MANIFEST_INFO = app.isPackaged
     ? path.join(process.resourcesPath, "./560381_3190888022545443868.manifest")
     : path.join(
-        __dirname,
-        "../../src/downloader/560381_3190888022545443868.manifest",
-    );
+          __dirname,
+          "../../src/downloader/560381_3190888022545443868.manifest",
+      );
 
 const DEPOT_KEY = app.isPackaged
     ? path.join(process.resourcesPath, "./depot.key")
@@ -226,9 +215,9 @@ export const DownloadClient = async (
     // Download the client
     ActiveDownloadProcess = spawn(`dotnet`, args, {});
 
-        const startTime = Date.now();
-        let lastPercent = 0;
-        const percentDiffs = [] as { diff: number; time: number }[];
+    const startTime = Date.now();
+    let lastPercent = 0;
+    const percentDiffs = [] as { diff: number; time: number }[];
 
     const etaInterval = setInterval(() => {
         const timeElapsed = Date.now() - startTime;
@@ -310,165 +299,167 @@ export const DownloadClient = async (
     ActiveDownloadProcess = null;
 };
 
-// https://github.com/shuabritze/adventure-island-online-2/releases/latest
-const GITHUB_CHUNKS = [
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.001",
-        fileName: "MapleStory2-Client.zip.001",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.002",
-        fileName: "MapleStory2-Client.zip.002",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.003",
-        fileName: "MapleStory2-Client.zip.003",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.004",
-        fileName: "MapleStory2-Client.zip.004",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.005",
-        fileName: "MapleStory2-Client.zip.005",
-    },
-    {
-        url: "https://github.com/shuabritze/adventure-island-online-2/releases/latest/download/MapleStory2-Client.zip.006",
-        fileName: "MapleStory2-Client.zip.006",
-    },
-] as {
-    url: string;
-    fileName: string;
-}[];
+const GITHUB_LATEST_RELEASE_API =
+    "https://api.github.com/repos/buggywhiletrue/client/releases/latest";
 
-const GithubClient = async (clientPath: string, cb: (err: Error) => void) => {
-    // ensure clientPath exists
-    if (!fs.existsSync(clientPath)) {
-        fs.mkdirSync(clientPath, { recursive: true });
+interface GithubReleaseAsset {
+    name: string;
+    size: number;
+    digest?: string;
+    browser_download_url: string;
+}
+
+interface GithubRelease {
+    tag_name: string;
+    assets: GithubReleaseAsset[];
+}
+
+const resolveClientPath = (clientPath: string, assetName: string) => {
+    const relativePath = assetName.split("__").join(path.sep);
+    const resolved = path.resolve(clientPath, relativePath);
+    const root = path.resolve(clientPath) + path.sep;
+    if (!resolved.startsWith(root)) {
+        throw new Error(`Unsafe release asset path: ${assetName}`);
     }
+    return resolved;
+};
 
-    const chunkReqs: any[] = [];
-    let totalLength = 0;
-    // Get total download size
-    for (const chunk of GITHUB_CHUNKS) {
-        const res = await axios({
-            method: "HEAD",
-            url: chunk.url,
-        })
+const downloadAsset = async (
+    asset: GithubReleaseAsset,
+    tempPath: string,
+    onData: (bytes: number) => void,
+) => {
+    const response = await axios({
+        method: "GET",
+        url: asset.browser_download_url,
+        responseType: "stream",
+        timeout: 60 * 60 * 1000,
+        maxRedirects: 10,
+        headers: { Accept: "application/octet-stream" },
+    });
+    const hash = createHash("sha256");
+    response.data.on("data", (chunk: Buffer) => {
+        hash.update(chunk);
+        onData(chunk.length);
+    });
+    await pipeline(response.data, fs.createWriteStream(tempPath));
 
-        const contentLength = res.headers["content-length"];
-        if (contentLength) {
-            totalLength += parseInt(contentLength, 10);
-        }
-
-        // chunk the downloads
-        const chunkSize = 256 * 1024 * 1024; // 256mb
-        const chunkCount = Math.ceil(contentLength / chunkSize);
-
-
-        for (let i = 0; i < chunkCount; i++) {
-            const start = i * chunkSize;
-            const end = Math.min(start + chunkSize - 1, contentLength - 1);
-            const rangeHeader = `bytes=${start}-${end}`;
-            chunkReqs.push({
-                url: chunk.url,
-                headers: {
-                    "Accept": "application/octet-stream",
-                    "Range": rangeHeader,
-                },
-                start,
-                end,
-            });
+    if (asset.digest?.startsWith("sha256:")) {
+        const actualDigest = `sha256:${hash.digest("hex")}`;
+        if (actualDigest !== asset.digest) {
+            throw new Error(`Checksum mismatch: ${asset.name}`);
         }
     }
+};
 
-    let chunkIdx = 0;
-    const resFactory: FactoryStream = async (callback: (arg0: Error, arg1: Readable) => void) => {
-        if (chunkIdx >= chunkReqs.length) {
-            // all done
-            callback(null, null);
-            return;
+const extractZip = async (zipPath: string, clientPath: string) => {
+    await fs
+        .createReadStream(zipPath)
+        .pipe(unzipper.Extract({ path: clientPath }))
+        .promise();
+};
+
+const GithubClient = async (clientPath: string) => {
+    if (!clientPath) {
+        throw new Error("Client install path is not configured");
+    }
+    fs.mkdirSync(clientPath, { recursive: true });
+
+    const releaseResponse = await axios.get<GithubRelease>(
+        GITHUB_LATEST_RELEASE_API,
+        { headers: { Accept: "application/vnd.github+json" } },
+    );
+    const release = releaseResponse.data;
+    if (!release.assets.length) {
+        throw new Error(`No assets found in release ${release.tag_name}`);
+    }
+
+    const cachePath = path.join(clientPath, ".launcher-downloads");
+    fs.mkdirSync(cachePath, { recursive: true });
+    const totalBytes = release.assets.reduce(
+        (sum, asset) => sum + asset.size,
+        0,
+    );
+    const startedAt = Date.now();
+    let downloadedBytes = 0;
+
+    const updateProgress = (assetName: string, bytes: number) => {
+        downloadedBytes += bytes;
+        downloadProgress = (downloadedBytes / totalBytes) * 100;
+        currentFileDownload = assetName;
+        const elapsedSeconds = Math.max((Date.now() - startedAt) / 1000, 1);
+        const bytesPerSecond = downloadedBytes / elapsedSeconds;
+        downloadEta = Math.max(
+            Math.round((totalBytes - downloadedBytes) / bytesPerSecond),
+            0,
+        );
+    };
+
+    const multipartGroups = new Map<string, GithubReleaseAsset[]>();
+    const regularAssets: GithubReleaseAsset[] = [];
+    for (const asset of release.assets) {
+        const partMatch = asset.name.match(/^(.*)\.part(\d+)$/i);
+        if (!partMatch) {
+            regularAssets.push(asset);
+            continue;
+        }
+        const group = multipartGroups.get(partMatch[1]) ?? [];
+        group.push(asset);
+        multipartGroups.set(partMatch[1], group);
+    }
+
+    try {
+        for (const asset of regularAssets) {
+            const tempPath = path.join(
+                cachePath,
+                asset.name.replace(/[^a-z0-9._-]/gi, "_"),
+            );
+            await downloadAsset(asset, tempPath, (bytes) =>
+                updateProgress(asset.name, bytes),
+            );
+
+            if (asset.name.toLowerCase().endsWith(".zip")) {
+                await extractZip(tempPath, clientPath);
+            } else {
+                const destination = resolveClientPath(clientPath, asset.name);
+                fs.mkdirSync(path.dirname(destination), { recursive: true });
+                fs.renameSync(tempPath, destination);
+            }
+            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
         }
 
-        const req = chunkReqs[chunkIdx];
-        chunkIdx++;
-        try {
-            const res = await axios({
-                method: "GET",
-                url: req.url,
-                headers: req.headers,
-                responseType: "stream",
-                timeout: 60 * 60 * 1000, // 1 hour
-            });
+        for (const [baseName, parts] of multipartGroups) {
+            parts.sort((a, b) =>
+                a.name.localeCompare(b.name, undefined, { numeric: true }),
+            );
+            const destination = resolveClientPath(clientPath, baseName);
+            const partialPath = `${destination}.partial`;
+            fs.mkdirSync(path.dirname(destination), { recursive: true });
+            if (fs.existsSync(partialPath)) fs.unlinkSync(partialPath);
 
-            if (res.status !== 206) {
-                logger.error(
-                    `Error downloading ${req.url}: ${res.status} ${res.statusText}`,
+            for (const asset of parts) {
+                const tempPath = path.join(
+                    cachePath,
+                    asset.name.replace(/[^a-z0-9._-]/gi, "_"),
                 );
-                callback(new Error("Error downloading " + req.url), null);
-                MAIN_WINDOW.webContents.send("download-error", "Error downloading " + req.url);
-                return;
+                await downloadAsset(asset, tempPath, (bytes) =>
+                    updateProgress(asset.name, bytes),
+                );
+                await pipeline(
+                    fs.createReadStream(tempPath),
+                    fs.createWriteStream(partialPath, { flags: "a" }),
+                );
+                fs.unlinkSync(tempPath);
             }
 
-            logger.info("Downloading chunk", req.url, res.status, req.headers);
-
-            callback(null, res.data);
-        } catch (err) {
-            logger.error("Error downloading chunk", err);
-            callback(err, null);
-            MAIN_WINDOW.webContents.send("download-error", err);
+            if (fs.existsSync(destination)) fs.unlinkSync(destination);
+            fs.renameSync(partialPath, destination);
         }
+
+        downloadProgress = 100;
+        downloadEta = 0;
+        logger.info(`Installed GitHub client release ${release.tag_name}`);
+    } finally {
+        fs.rmSync(cachePath, { recursive: true, force: true });
     }
-
-    const ms = new MultiStream(resFactory);
-
-    // 1gb buffer
-    const databuffer = new PassThrough({ highWaterMark: 1024 * 1024 * 1024 });
-
-    ms.pipe(databuffer);
-
-    let unpackedBytes = 0;
-    databuffer.on("data", (data) => {
-        unpackedBytes += data.length;
-        downloadProgress = (
-            (unpackedBytes / totalLength) * 100
-        );
-
-        currentFileDownload = `${downloadProgress.toFixed(2)}% ${downloadFileName}`;
-    });
-
-    const unzipStream = unzipper.Parse({ concurrency: 6 });
-    unzipStream.on("entry", (entry: unzipper.Entry) => {
-        downloadFileName = entry.path;
-
-        if (entry.type === "Directory") {
-            // if entry is a directory, create it
-            fs.mkdirSync(path.join(clientPath, entry.path), {
-                recursive: true,
-            });
-            entry.autodrain();
-            return;
-        }
-
-        // create parent directory if it doesn't exist
-        const parentDir = path.join(
-            clientPath,
-            path.dirname(entry.path),
-        );
-        if (!fs.existsSync(parentDir)) {
-            fs.mkdirSync(parentDir, { recursive: true });
-        }
-
-        // write file
-        const ws = fs.createWriteStream(path.join(clientPath, entry.path));
-        entry.pipe(ws);
-    })
-        .on("close", () => {
-            logger.info("Unzipped files to", clientPath);
-        })
-        .on("error", (err) => {
-            logger.error("Error unzipping files", err);
-        });
-
-    await pipeline(databuffer, unzipStream);
 };
