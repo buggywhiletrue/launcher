@@ -12,6 +12,7 @@
 
 본 프로젝트의 수정사항과 배포는 원본 개발자가 직접 제공하거나 보증하는 것이 아니며, 수정본과 관련된 문의는 원본 저장소가 아닌 이 저장소에서 처리합니다.
 
+
 ### Original Project and Acknowledgements
 
 This launcher is an unofficial derivative project based on [Mushroom Launcher by shuabritze](https://github.com/shuabritze/mushroom-launcher).
@@ -26,6 +27,7 @@ This version is independently modified and maintained for Korean players, includ
 - Related server and runtime configuration
 
 This modified distribution is not provided, maintained, or endorsed by the original developer. Please direct questions regarding this version to this repository rather than the original project.
+
 
 ### 라이선스 / License
 
