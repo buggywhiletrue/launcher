@@ -1,12 +1,4 @@
-import {
-    Download,
-    DownloadCloud,
-    DownloadCloudIcon,
-    DownloadIcon,
-    Folder,
-    GithubIcon,
-    Link,
-} from "lucide-react";
+import { Download, DownloadIcon, Folder, GithubIcon, Link } from "lucide-react";
 import {
     Sheet,
     SheetContent,
@@ -145,18 +137,18 @@ export const DownloadSheet = () => {
                                 <Button
                                     variant="outline"
                                     disabled={downloadInProgress}
-                                    onClick={() => startDownload("steam")}
+                                    onClick={() => startDownload("automatic")}
                                 >
                                     {t(
-                                        "download.install.steam",
-                                        "Download Xml only",
+                                        "download.install.automatic",
+                                        "Automatic download",
                                     )}{" "}
                                     <Download />
                                 </Button>
                                 <small>
                                     {t(
-                                        "download.install.steam.info",
-                                        "Downloads when some of the data files are corrupted.",
+                                        "download.install.automatic.info",
+                                        "Downloads and installs the latest client automatically. (Recommended)",
                                     )}
                                 </small>
                             </div>
@@ -164,36 +156,39 @@ export const DownloadSheet = () => {
                                 <Button
                                     variant="outline"
                                     disabled={downloadInProgress}
-                                    onClick={() => startDownload("github")}
+                                    onClick={() =>
+                                        startDownload("github-releases")
+                                    }
                                 >
                                     {t(
-                                        "download.install.github",
-                                        "Download via GitHub",
+                                        "download.install.githubReleases",
+                                        "View on GitHub Releases",
                                     )}{" "}
                                     <GithubIcon />
                                 </Button>
                                 <small>
                                     {t(
-                                        "download.install.github.info",
-                                        "Downloads from Github releases. (Recommended)",
+                                        "download.install.githubReleases.info",
+                                        "Opens the client release page in your browser.",
                                     )}
                                 </small>
                             </div>
                             <div className="flex flex-col gap-2">
                                 <Button
                                     variant="outline"
-                                    onClick={() => startDownload("direct")}
+                                    disabled={downloadInProgress}
+                                    onClick={() => startDownload("drive")}
                                 >
                                     {t(
-                                        "download.install.direct",
-                                        "Download via Onedrive",
+                                        "download.install.drive",
+                                        "View on Drive",
                                     )}{" "}
                                     <Link />
                                 </Button>
                                 <small>
                                     {t(
-                                        "download.install.direct.info",
-                                        "Direct link to the client. You need to decompress it yourself.",
+                                        "download.install.drive.info",
+                                        "Opens the alternative download page in your browser.",
                                     )}
                                 </small>
                             </div>
