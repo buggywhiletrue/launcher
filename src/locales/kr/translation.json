@@ -14,8 +14,8 @@
     "notice.type.launcher": "런처 업데이트",
     "notice.type.maintenance": "점검 안내",
     "notice.type.general": "일반 공지",
-    "notice.widget.error": "공지사항을 일시적으로 불러올 수 없습니다.",
-    "notice.widget.loading": "공지사항을 불러오는 중...",
+    "notice.widget.error": "최신 릴리스 정보를 일시적으로 불러올 수 없습니다.",
+    "notice.widget.loading": "최신 릴리스 정보를 불러오는 중...",
     "notice.widget.readMore": "자세히...",
     "notice.widget.title": "공지사항",
     "download.install.automatic": "자동 다운로드",
@@ -72,5 +72,9 @@
     "mods.idPlaceholder": "고유-모드-id",
     "mods.updateUrlPlaceholder": "https://example.com/ (모드 저장소의 루트 URL을 사용하세요)",
     "client.settings.modDeveloper": "모드 개발자",
-    "client.settings.modDeveloper.info": "모드 생성 및 로컬 모드 파일 업데이트와 같은 모드 개발자 기능을 활성화합니다."
+    "client.settings.modDeveloper.info": "모드 생성 및 로컬 모드 파일 업데이트와 같은 모드 개발자 기능을 활성화합니다.",
+    "notice.widget.latestUpdate": "최신 업데이트",
+    "notice.widget.launcher": "런처",
+    "notice.widget.client": "클라이언트",
+    "notice.widget.releaseAvailable": "GitHub Releases에 최신 공개 버전이 등록되었습니다."
 }
