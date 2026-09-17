@@ -6,104 +6,141 @@ import { t } from "i18next";
 
 import FRIENDS_ICON from "../assets/friends-icon.png";
 
-const NOTICE_FEED_URL =
-    "https://raw.githubusercontent.com/buggywhiletrue/launcher/main/notices.json";
-const NOTICE_REFRESH_INTERVAL = 5 * 60 * 1000;
+const RELEASE_REFRESH_INTERVAL = 30 * 60 * 1000;
+const RELEASE_ENDPOINTS = {
+    launcher:
+        "https://api.github.com/repos/buggywhiletrue/launcher/releases/latest",
+    client: "https://api.github.com/repos/buggywhiletrue/client/releases/latest",
+} as const;
 
-type NoticeType = "client" | "launcher" | "maintenance" | "general";
+type ReleaseKind = keyof typeof RELEASE_ENDPOINTS;
 
-interface Notice {
-    id: string;
-    type: NoticeType;
-    title: string;
-    summary: string;
-    publishedAt: string;
-    url: string;
+interface GitHubRelease {
+    tag_name: string;
+    name: string | null;
+    html_url: string;
+    published_at: string;
 }
 
-interface NoticeFeed {
-    schemaVersion: number;
-    notices: Notice[];
+interface ReleaseSummary extends GitHubRelease {
+    kind: ReleaseKind;
 }
 
-const noticeTypeLabel = (type: NoticeType) => {
-    const labels: Record<NoticeType, string> = {
-        client: t("notice.type.client", "Client update"),
-        launcher: t("notice.type.launcher", "Launcher update"),
-        maintenance: t("notice.type.maintenance", "Maintenance"),
-        general: t("notice.type.general", "General notice"),
-    };
-    return labels[type];
+const releaseCacheKey = (kind: ReleaseKind) =>
+    `buggywhiletrue.latest-release.${kind}`;
+
+const isRelease = (value: unknown): value is GitHubRelease => {
+    if (!value || typeof value !== "object") return false;
+    const release = value as Partial<GitHubRelease>;
+    return (
+        typeof release.tag_name === "string" &&
+        (typeof release.name === "string" || release.name === null) &&
+        typeof release.html_url === "string" &&
+        release.html_url.startsWith("https://github.com/") &&
+        typeof release.published_at === "string" &&
+        !Number.isNaN(new Date(release.published_at).getTime())
+    );
 };
 
-const formatNoticeDate = (publishedAt: string) => {
-    const date = new Date(publishedAt);
-    if (Number.isNaN(date.getTime())) return publishedAt;
-    return new Intl.DateTimeFormat(undefined, {
+const readCachedRelease = (kind: ReleaseKind): ReleaseSummary | null => {
+    try {
+        const cached = JSON.parse(
+            window.localStorage.getItem(releaseCacheKey(kind)) ?? "null",
+        ) as unknown;
+        return isRelease(cached) ? { ...cached, kind } : null;
+    } catch {
+        return null;
+    }
+};
+
+const fetchLatestRelease = async (
+    kind: ReleaseKind,
+): Promise<ReleaseSummary> => {
+    try {
+        const response = await fetch(RELEASE_ENDPOINTS[kind], {
+            cache: "no-store",
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const release = (await response.json()) as unknown;
+        if (!isRelease(release)) throw new Error("Invalid release response");
+
+        window.localStorage.setItem(
+            releaseCacheKey(kind),
+            JSON.stringify(release),
+        );
+        return { ...release, kind };
+    } catch (error) {
+        const cached = readCachedRelease(kind);
+        if (cached) return cached;
+        throw error;
+    }
+};
+
+const formatReleaseDate = (publishedAt: string) => {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Seoul",
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
-    }).format(date);
+    }).formatToParts(new Date(publishedAt));
+    const getPart = (type: Intl.DateTimeFormatPartTypes) =>
+        parts.find((part) => part.type === type)?.value ?? "";
+    return [getPart("year"), getPart("month"), getPart("day")].join(".");
+};
+
+const formatVersion = (tagName: string) => {
+    const version = tagName.match(
+        /\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/,
+    )?.[0];
+    return version ? `v${version}` : tagName;
 };
 
 export const NoticeWidget = () => {
-    const [notice, setNotice] = useState<Notice | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+    const [releases, setReleases] = useState<ReleaseSummary[] | null>(null);
 
     useEffect(() => {
         let active = true;
 
-        const fetchNotice = async () => {
-            try {
-                const response = await fetch(
-                    `${NOTICE_FEED_URL}?t=${Date.now()}`,
-                    { cache: "no-store" },
-                );
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const fetchReleases = async () => {
+            const results = await Promise.allSettled([
+                fetchLatestRelease("launcher"),
+                fetchLatestRelease("client"),
+            ]);
+            if (!active) return;
 
-                const feed = (await response.json()) as NoticeFeed;
-                if (feed.schemaVersion !== 1 || !Array.isArray(feed.notices)) {
-                    throw new Error("Unsupported notice feed");
+            const available: ReleaseSummary[] = [];
+            results.forEach((result) => {
+                if (result.status === "fulfilled") {
+                    available.push(result.value);
                 }
-
-                const latestNotice = [...feed.notices]
-                    .filter(
-                        (item) =>
-                            item.id &&
-                            item.title &&
-                            item.summary &&
-                            item.publishedAt &&
-                            item.url?.startsWith("https://"),
-                    )
-                    .sort(
-                        (a, b) =>
-                            new Date(b.publishedAt).getTime() -
-                            new Date(a.publishedAt).getTime(),
-                    )[0];
-
-                if (!latestNotice) throw new Error("No notices available");
-                if (active) {
-                    setNotice(latestNotice);
-                    setError(false);
-                }
-            } catch {
-                if (active) setError(true);
-            } finally {
-                if (active) setLoading(false);
-            }
+            });
+            available.sort(
+                (a, b) =>
+                    new Date(b.published_at).getTime() -
+                    new Date(a.published_at).getTime(),
+            );
+            setReleases(available);
         };
 
-        fetchNotice();
+        fetchReleases();
         const interval = window.setInterval(
-            fetchNotice,
-            NOTICE_REFRESH_INTERVAL,
+            fetchReleases,
+            RELEASE_REFRESH_INTERVAL,
         );
         return () => {
             active = false;
             window.clearInterval(interval);
         };
     }, []);
+
+    const latestRelease = releases?.[0];
+    const launcherRelease = releases?.find(
+        (release) => release.kind === "launcher",
+    );
+    const clientRelease = releases?.find(
+        (release) => release.kind === "client",
+    );
 
     return (
         <Container
@@ -121,43 +158,62 @@ export const NoticeWidget = () => {
             }
         >
             <div className="flex min-h-[8.25rem] flex-col gap-2 rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#F2F2F2] via-[#CECECE] to-[#EEEEEE] p-2 text-black text-shadow-sm/100 text-shadow-white">
-                {loading && (
+                {releases === null && (
                     <div className="flex flex-1 items-center justify-center text-sm text-gray-600">
-                        {t("notice.widget.loading", "Loading notices...")}
-                    </div>
-                )}
-
-                {!loading && (error || !notice) && (
-                    <div className="flex flex-1 items-center justify-center text-center text-sm text-gray-600">
                         {t(
-                            "notice.widget.error",
-                            "Notices are temporarily unavailable.",
+                            "notice.widget.loading",
+                            "Loading release information...",
                         )}
                     </div>
                 )}
 
-                {!loading && notice && (
+                {releases?.length === 0 && (
+                    <div className="flex flex-1 items-center justify-center text-center text-sm text-gray-600">
+                        {t(
+                            "notice.widget.error",
+                            "Release information is temporarily unavailable.",
+                        )}
+                    </div>
+                )}
+
+                {latestRelease && (
                     <>
                         <h2 className="flex items-center gap-2 font-bold">
                             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-[#A0A0A0] bg-black/10">
                                 <Bell size={22} />
                             </span>
-                            <span className="line-clamp-1">{notice.title}</span>
+                            <span className="line-clamp-1">
+                                {t(
+                                    "notice.widget.latestUpdate",
+                                    "Latest update",
+                                )}{" "}
+                                - {formatReleaseDate(latestRelease.published_at)}
+                            </span>
                         </h2>
-                        <div className="flex gap-2 text-xs">
-                            <div className="flex items-center gap-1">
-                                <div className="h-3 w-3 rounded-full bg-green-300" />
-                                {noticeTypeLabel(notice.type)}
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <div className="flex h-3 w-3 items-center justify-center rounded-full bg-gray-400">
-                                    <div className="h-1 w-1 rounded-full bg-gray-500" />
+                        <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs">
+                            {launcherRelease && (
+                                <div className="flex items-center gap-1">
+                                    <div className="h-3 w-3 rounded-full bg-green-300" />
+                                    {t("notice.widget.launcher", "Launcher")}{" "}
+                                    {formatVersion(launcherRelease.tag_name)}
                                 </div>
-                                {formatNoticeDate(notice.publishedAt)}
-                            </div>
+                            )}
+                            {clientRelease && (
+                                <div className="flex items-center gap-1">
+                                    <div className="flex h-3 w-3 items-center justify-center rounded-full bg-gray-400">
+                                        <div className="h-1 w-1 rounded-full bg-gray-500" />
+                                    </div>
+                                    {t("notice.widget.client", "Client")}{" "}
+                                    {formatVersion(clientRelease.tag_name)}
+                                </div>
+                            )}
                         </div>
                         <p className="line-clamp-2 min-h-8 text-xs text-gray-700">
-                            {notice.summary}
+                            {latestRelease.name ||
+                                t(
+                                    "notice.widget.releaseAvailable",
+                                    "The latest public release is available on GitHub Releases.",
+                                )}
                         </p>
                         <Button
                             variant="maplestory_primary"
@@ -165,7 +221,7 @@ export const NoticeWidget = () => {
                             className="mt-auto w-full"
                             onClick={() =>
                                 window.open(
-                                    notice.url,
+                                    latestRelease.html_url,
                                     "_blank",
                                     "noopener,noreferrer",
                                 )
