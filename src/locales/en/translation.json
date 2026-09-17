@@ -14,8 +14,8 @@
     "notice.type.launcher": "Launcher update",
     "notice.type.maintenance": "Maintenance",
     "notice.type.general": "General notice",
-    "notice.widget.error": "Notices are temporarily unavailable.",
-    "notice.widget.loading": "Loading notices...",
+    "notice.widget.error": "Release information is temporarily unavailable.",
+    "notice.widget.loading": "Loading release information...",
     "notice.widget.readMore": "Read more...",
     "notice.widget.title": "Notices",
     "download.install.automatic": "Automatic download",
@@ -72,5 +72,9 @@
     "mods.idPlaceholder": "unique-mod-id",
     "mods.updateUrlPlaceholder": "https://example.com/ (Use the root URL of the mod repository)",
     "client.settings.modDeveloper": "Mod Developer",
-    "client.settings.modDeveloper.info": "Enables mod developer features such as creating mods and updating local mod files."
+    "client.settings.modDeveloper.info": "Enables mod developer features such as creating mods and updating local mod files.",
+    "notice.widget.latestUpdate": "Latest update",
+    "notice.widget.launcher": "Launcher",
+    "notice.widget.client": "Client",
+    "notice.widget.releaseAvailable": "The latest public release is available on GitHub Releases."
 }
