@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Container } from "./Container";
 import { useAppState } from "./AppState";
 import { t } from "i18next";
 
 import FRIENDS_ICON from "../assets/friends-icon.png";
+import NOTICE_WIDGET_ICON from "../assets/notice-widget-icon.png";
 
 const RELEASE_REFRESH_INTERVAL = 30 * 60 * 1000;
 const RELEASE_ENDPOINTS = {
@@ -224,7 +224,7 @@ export const NoticeWidget = () => {
                 </div>
             }
         >
-            <div className="flex min-h-[8.25rem] flex-col gap-2 rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#CECECE] to-[#F2F2F2] p-2 text-center text-black text-shadow-sm/100 text-shadow-white">
+            <div className="flex min-h-[8.25rem] flex-col rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#CECECE] to-[#F2F2F2] p-2 text-left text-black text-shadow-sm/100 text-shadow-white">
                 {releases === null && (
                     <div className="flex flex-1 items-center justify-center text-sm text-gray-600">
                         {t(
@@ -245,36 +245,38 @@ export const NoticeWidget = () => {
 
                 {latestRelease && (
                     <>
-                        <h2 className="flex items-center justify-center gap-2 font-bold">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-[#A0A0A0] bg-black/10">
-                                <Bell size={22} />
+                        <div className="flex items-center gap-2">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-[#8E8E8E] bg-[#D8D8D8]">
+                                <img
+                                    src={NOTICE_WIDGET_ICON}
+                                    alt=""
+                                    className="h-full w-full object-contain p-0.5"
+                                />
                             </span>
-                            <span className="line-clamp-1">
+                            <h2 className="min-w-0 flex-1 whitespace-nowrap text-left text-[0.95rem] font-bold leading-tight">
                                 Latest update{" "}
                                 {formatReleaseDate(latestRelease.published_at)}
-                            </span>
-                        </h2>
-                        <div className="flex flex-col gap-1">
-                            <div className="grid grid-cols-2 items-center gap-x-3 px-2 text-[0.8rem]">
-                                {clientRelease && (
-                                    <div className="flex items-center justify-start gap-1 whitespace-nowrap">
-                                        <VersionStatus current={clientIsCurrent} />
-                                        Client{" "}
-                                        {formatVersion(clientRelease.tag_name)}
-                                    </div>
-                                )}
-                                {launcherRelease && (
-                                    <div className="flex items-center justify-start gap-1 whitespace-nowrap">
-                                        <VersionStatus current={launcherIsCurrent} />
-                                        Launcher{" "}
-                                        {formatVersion(launcherRelease.tag_name)}
-                                    </div>
-                                )}
-                            </div>
-                            <p className="px-2 text-left text-sm text-gray-700">
-                                {statusMessage}
-                            </p>
+                            </h2>
                         </div>
+                        <div className="mt-1 flex items-center gap-x-3 px-0.5 text-[0.8rem] leading-none">
+                            {clientRelease && (
+                                <div className="flex items-center gap-1 whitespace-nowrap">
+                                    <VersionStatus current={clientIsCurrent} />
+                                    Client{" "}
+                                    {formatVersion(clientRelease.tag_name)}
+                                </div>
+                            )}
+                            {launcherRelease && (
+                                <div className="flex items-center gap-1 whitespace-nowrap">
+                                    <VersionStatus current={launcherIsCurrent} />
+                                    Launcher{" "}
+                                    {formatVersion(launcherRelease.tag_name)}
+                                </div>
+                            )}
+                        </div>
+                        <p className="mt-1 px-0.5 text-left text-[0.8rem] leading-tight text-gray-700">
+                            {statusMessage}
+                        </p>
                         <Button
                             variant="maplestory_primary"
                             size="maplestory"
