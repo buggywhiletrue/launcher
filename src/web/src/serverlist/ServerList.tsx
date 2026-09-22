@@ -220,7 +220,7 @@ export const ServerList = () => {
                                             </div>
                                         )}
                                         <img
-                                            className={`h-8 w-8 scale-110 rounded-sm border border-[#A0A0A0] bg-black/15 p-0.5 ${server.online ? "" : "grayscale"}`}
+                                            className={`h-8 w-8 scale-[1.2] rounded-sm border border-[#A0A0A0] bg-black/15 p-0.5 ${server.online ? "" : "grayscale"}`}
                                             src={SERVER_ROW_ICONS[idx % SERVER_ROW_ICONS.length]}
                                         />
                                         <div className="font-bold text-shadow-sm/50 text-shadow-white">
