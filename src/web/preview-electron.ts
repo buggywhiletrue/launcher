@@ -80,7 +80,7 @@ const createId = () =>
 
 if (!window.electron) {
     window.electron = {
-        getAppVersion: async () => "2.0.3-r1",
+        getAppVersion: async () => "2.0.3-r2",
         getAppConfig: async () => ({ ...previewConfig }),
         saveAppConfig: async () => undefined,
         getAppDataPath: async () => "C:\\MushroomLauncherPreview",
