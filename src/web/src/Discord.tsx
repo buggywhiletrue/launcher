@@ -256,7 +256,7 @@ export const NoticeWidget = () => {
                                 <img
                                     src={NOTICE_TITLE_ICON}
                                     alt=""
-                                    className="h-12 w-12 max-w-none scale-80 object-contain"
+                                    className="h-12 w-12 max-w-none scale-110 object-contain"
                                 />
                                 <img
                                     src={MUSHROOM_ICON}
@@ -276,14 +276,14 @@ export const NoticeWidget = () => {
                         </div>
                         <div className="mt-2 flex items-center gap-x-3 px-0.5 text-[0.8rem] leading-normal">
                             {clientRelease && (
-                                <div className="flex items-center gap-1 whitespace-nowrap">
+                                <div className="flex items-center gap-[0.5em] whitespace-nowrap">
                                     <VersionStatus current={clientIsCurrent} />
                                     Client{" "}
                                     {formatVersion(clientRelease.tag_name)}
                                 </div>
                             )}
                             {launcherRelease && (
-                                <div className="flex items-center gap-1 whitespace-nowrap">
+                                <div className="flex items-center gap-[0.5em] whitespace-nowrap">
                                     <VersionStatus current={launcherIsCurrent} />
                                     Launcher{" "}
                                     {formatVersion(launcherRelease.tag_name)}
