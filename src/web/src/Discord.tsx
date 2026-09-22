@@ -273,7 +273,7 @@ export const NoticeWidget = () => {
                                 />
                             </span>
                             <h2 className="min-w-0 flex-1 whitespace-nowrap text-left text-[0.95rem] font-bold leading-tight">
-                                {t("notice.widget.latestUpdate", "Latest Update")}{" "}
+                                Latest Update{" "}
                                 {formatReleaseDate(latestRelease.published_at)}
                             </h2>
                         </div>
@@ -281,14 +281,14 @@ export const NoticeWidget = () => {
                             {clientRelease && (
                                 <div className="flex items-center gap-[0.5em] whitespace-nowrap">
                                     <VersionStatus current={clientIsCurrent} />
-                                    {t("notice.widget.client", "Client")}{" "}
+                                    Client{" "}
                                     {formatVersion(clientRelease.tag_name)}
                                 </div>
                             )}
                             {launcherRelease && (
                                 <div className="flex items-center gap-[0.5em] whitespace-nowrap">
                                     <VersionStatus current={launcherIsCurrent} />
-                                    {t("notice.widget.launcher", "Launcher")}{" "}
+                                    Launcher{" "}
                                     {formatVersion(launcherRelease.tag_name)}
                                 </div>
                             )}
