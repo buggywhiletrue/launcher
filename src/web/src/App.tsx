@@ -5,6 +5,7 @@ import { backgrounds } from "../assets/backgrounds.mjs";
 import { characters } from "../assets/characters.mjs";
 import { SettingsSheet } from "./SettingsSheet";
 import { GithubIcon } from "lucide-react";
+import { t } from "i18next";
 import { useAppState } from "./AppState";
 import { ServerList } from "./serverlist/ServerList";
 import { DownloadSheet } from "./download/DownloadSheet";
@@ -99,7 +100,7 @@ function App() {
                                 target="_blank"
                                 rel="noreferrer"
                                 className="rounded-md p-2 hover:bg-gray-200/15"
-                                title="런처 업데이트"
+                                title={t("header.launcherUpdate", "Launcher update")}
                             >
                                 <GithubIcon />
                             </a>

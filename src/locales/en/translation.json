@@ -73,7 +73,7 @@
     "mods.updateUrlPlaceholder": "https://example.com/ (Use the root URL of the mod repository)",
     "client.settings.modDeveloper": "Mod Developer",
     "client.settings.modDeveloper.info": "Enables mod developer features such as creating mods and updating local mod files.",
-    "notice.widget.latestUpdate": "Latest update",
+    "notice.widget.latestUpdate": "Latest Update",
     "notice.widget.launcher": "Launcher",
     "notice.widget.client": "Client",
     "notice.widget.releaseAvailable": "The latest public release is available on GitHub Releases.",
@@ -81,5 +81,11 @@
     "notice.widget.status.current": "You are using the latest version.",
     "notice.widget.status.clientMismatch": "The client version does not match. Please update it.",
     "notice.widget.status.launcherMismatch": "The launcher version does not match. Please update it.",
-    "notice.widget.status.bothMismatch": "The client and launcher versions do not match. Please update them."
+    "notice.widget.status.bothMismatch": "The client and launcher versions do not match. Please update them.",
+    "header.mods": "Add mod",
+    "header.download": "Client download",
+    "header.launcherUpdate": "Launcher update",
+    "header.settings": "Settings",
+    "notice.widget.status.upToDate": "Up to date",
+    "notice.widget.status.updateRequired": "Update required or version unknown"
 }

@@ -59,7 +59,7 @@ export const ModsSheet = () => {
             >
                 <SheetTrigger
                     className="cursor-pointer rounded-md p-2 hover:bg-gray-200/15"
-                    title="모드 추가"
+                    title={t("header.mods", "Add mod")}
                 >
                     <LucideFileBox />
                 </SheetTrigger>

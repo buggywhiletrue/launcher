@@ -119,12 +119,15 @@ const VersionStatus = ({ current }: { current: boolean }) =>
     current ? (
         <div
             className="h-3 w-3 shrink-0 rounded-full bg-green-300"
-            title="Up to date"
+            title={t("notice.widget.status.upToDate", "Up to date")}
         />
     ) : (
         <div
             className="flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-gray-400"
-            title="Update required or version unknown"
+            title={t(
+                "notice.widget.status.updateRequired",
+                "Update required or version unknown",
+            )}
         >
             <div className="h-1 w-1 rounded-full bg-gray-500" />
         </div>
@@ -270,7 +273,7 @@ export const NoticeWidget = () => {
                                 />
                             </span>
                             <h2 className="min-w-0 flex-1 whitespace-nowrap text-left text-[0.95rem] font-bold leading-tight">
-                                Latest Update{" "}
+                                {t("notice.widget.latestUpdate", "Latest Update")}{" "}
                                 {formatReleaseDate(latestRelease.published_at)}
                             </h2>
                         </div>
@@ -278,14 +281,14 @@ export const NoticeWidget = () => {
                             {clientRelease && (
                                 <div className="flex items-center gap-[0.5em] whitespace-nowrap">
                                     <VersionStatus current={clientIsCurrent} />
-                                    Client{" "}
+                                    {t("notice.widget.client", "Client")}{" "}
                                     {formatVersion(clientRelease.tag_name)}
                                 </div>
                             )}
                             {launcherRelease && (
                                 <div className="flex items-center gap-[0.5em] whitespace-nowrap">
                                     <VersionStatus current={launcherIsCurrent} />
-                                    Launcher{" "}
+                                    {t("notice.widget.launcher", "Launcher")}{" "}
                                     {formatVersion(launcherRelease.tag_name)}
                                 </div>
                             )}
@@ -296,7 +299,7 @@ export const NoticeWidget = () => {
                         <Button
                             variant="maplestory_primary"
                             size="maplestory"
-                            className="mt-2 w-full"
+                            className="mt-2 w-full font-bold"
                             onClick={() =>
                                 window.open(
                                     "https://app.notion.com/p/MapleStory2-38eafc48a0d280619472feafb97daf6b?source=copy_link",

@@ -81,5 +81,11 @@
     "notice.widget.status.current": "최신 버전입니다.",
     "notice.widget.status.clientMismatch": "클라이언트의 버전이 일치하지 않습니다. 업데이트를 진행해 주세요.",
     "notice.widget.status.launcherMismatch": "런처의 버전이 일치하지 않습니다. 업데이트를 진행해 주세요.",
-    "notice.widget.status.bothMismatch": "클라이언트 및 런처의 버전이 일치하지 않습니다. 업데이트를 진행해 주세요."
+    "notice.widget.status.bothMismatch": "클라이언트 및 런처의 버전이 일치하지 않습니다. 업데이트를 진행해 주세요.",
+    "header.mods": "모드 추가",
+    "header.download": "클라이언트 다운로드",
+    "header.launcherUpdate": "런처 업데이트",
+    "header.settings": "설정",
+    "notice.widget.status.upToDate": "최신 버전",
+    "notice.widget.status.updateRequired": "업데이트 필요 또는 버전 확인 불가"
 }

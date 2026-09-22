@@ -40,7 +40,7 @@ export const LaunchClient = () => {
             <Button
                 variant="maplestory_primary"
                 size="maplestory"
-                className="w-full"
+                className="w-full font-bold"
                 disabled={!selectedServer}
                 onClick={launchClient}
             >

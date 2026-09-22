@@ -43,7 +43,7 @@ export const DownloadSheet = () => {
             >
                 <SheetTrigger
                     className="cursor-pointer rounded-md p-2 hover:bg-gray-200/15"
-                    title="클라이언트 다운로드"
+                    title={t("header.download", "Client download")}
                 >
                     <DownloadIcon />
                 </SheetTrigger>
