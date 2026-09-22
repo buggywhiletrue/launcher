@@ -224,7 +224,7 @@ export const NoticeWidget = () => {
                 </div>
             }
         >
-            <div className="flex min-h-[8.25rem] flex-col rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#CECECE] to-[#F2F2F2] p-2 text-left text-black text-shadow-sm/100 text-shadow-white">
+            <div className="flex min-h-[8.25rem] flex-col rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#F2F2F2] via-[#CECECE] to-[#EEEEEE] p-2 text-left text-black text-shadow-sm/100 text-shadow-white">
                 {releases === null && (
                     <div className="flex flex-1 items-center justify-center text-sm text-gray-600">
                         {t(
