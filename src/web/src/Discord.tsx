@@ -179,6 +179,35 @@ export const NoticeWidget = () => {
     const clientRelease = releases?.find(
         (release) => release.kind === "client",
     );
+    const clientIsCurrent = Boolean(
+        clientRelease &&
+            versionsMatch(installedClientVersion, clientRelease.tag_name),
+    );
+    const launcherIsCurrent = Boolean(
+        launcherRelease && versionsMatch(appVersion, launcherRelease.tag_name),
+    );
+    const clientNeedsUpdate = Boolean(clientRelease && !clientIsCurrent);
+    const launcherNeedsUpdate = Boolean(launcherRelease && !launcherIsCurrent);
+    const statusMessage =
+        clientNeedsUpdate && launcherNeedsUpdate
+            ? t(
+                  "notice.widget.status.bothMismatch",
+                  "The client and launcher versions do not match. Please update them.",
+              )
+            : clientNeedsUpdate
+              ? t(
+                    "notice.widget.status.clientMismatch",
+                    "The client version does not match. Please update it.",
+                )
+              : launcherNeedsUpdate
+                ? t(
+                      "notice.widget.status.launcherMismatch",
+                      "The launcher version does not match. Please update it.",
+                  )
+                : t(
+                      "notice.widget.status.current",
+                      "You are using the latest version.",
+                  );
 
     return (
         <Container
@@ -195,7 +224,7 @@ export const NoticeWidget = () => {
                 </div>
             }
         >
-            <div className="flex min-h-[8.25rem] flex-col gap-2 rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#F2F2F2] via-[#CECECE] to-[#EEEEEE] p-2 text-black text-shadow-sm/100 text-shadow-white">
+            <div className="flex min-h-[8.25rem] flex-col gap-2 rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#F2F2F2] via-[#CECECE] to-[#EEEEEE] p-2 text-center text-black text-shadow-sm/100 text-shadow-white">
                 {releases === null && (
                     <div className="flex flex-1 items-center justify-center text-sm text-gray-600">
                         {t(
@@ -216,7 +245,7 @@ export const NoticeWidget = () => {
 
                 {latestRelease && (
                     <>
-                        <h2 className="flex items-center gap-2 font-bold">
+                        <h2 className="flex items-center justify-center gap-2 font-bold">
                             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-[#A0A0A0] bg-black/10">
                                 <Bell size={22} />
                             </span>
@@ -228,38 +257,24 @@ export const NoticeWidget = () => {
                                 - {formatReleaseDate(latestRelease.published_at)}
                             </span>
                         </h2>
-                        <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs">
+                        <div className="grid grid-cols-2 items-center gap-x-3 px-2 text-xs">
                             {clientRelease && (
-                                <div className="flex items-center gap-1">
-                                    <VersionStatus
-                                        current={versionsMatch(
-                                            installedClientVersion,
-                                            clientRelease.tag_name,
-                                        )}
-                                    />
+                                <div className="flex items-center justify-center gap-1">
+                                    <VersionStatus current={clientIsCurrent} />
                                     {t("notice.widget.client", "Client")}{" "}
                                     {formatVersion(clientRelease.tag_name)}
                                 </div>
                             )}
                             {launcherRelease && (
-                                <div className="flex items-center gap-1">
-                                    <VersionStatus
-                                        current={versionsMatch(
-                                            appVersion,
-                                            launcherRelease.tag_name,
-                                        )}
-                                    />
+                                <div className="flex items-center justify-center gap-1">
+                                    <VersionStatus current={launcherIsCurrent} />
                                     {t("notice.widget.launcher", "Launcher")}{" "}
                                     {formatVersion(launcherRelease.tag_name)}
                                 </div>
                             )}
                         </div>
-                        <p className="line-clamp-2 min-h-8 text-xs text-gray-700">
-                            {latestRelease.name ||
-                                t(
-                                    "notice.widget.releaseAvailable",
-                                    "The latest public release is available on GitHub Releases.",
-                                )}
+                        <p className="flex min-h-8 items-center justify-center text-xs text-gray-700">
+                            {statusMessage}
                         </p>
                         <Button
                             variant="maplestory_primary"
@@ -267,13 +282,13 @@ export const NoticeWidget = () => {
                             className="mt-auto w-full"
                             onClick={() =>
                                 window.open(
-                                    latestRelease.html_url,
+                                    "https://app.notion.com/p/MapleStory2-38eafc48a0d280619472feafb97daf6b?source=copy_link",
                                     "_blank",
                                     "noopener,noreferrer",
                                 )
                             }
                         >
-                            {t("notice.widget.readMore", "Read more...")}
+                            {t("notice.widget.help", "View help")}
                         </Button>
                     </>
                 )}

@@ -92,16 +92,18 @@ function App() {
                     <h1 className="z-10 flex w-full items-center justify-between bg-black/50 p-4 text-[1rem] font-bold">
                         <div className="flex gap-1">Mushroom Launcher 2</div>
                         <div className="flex h-6 items-center gap-2">
-                            <DownloadSheet />
-                            <ModsSheet />
-                            <SettingsSheet />
                             <a
-                                href="https://github.com/buggywhiletrue/launcher"
+                                href="https://github.com/buggywhiletrue/launcher/releases/latest"
                                 target="_blank"
+                                rel="noreferrer"
                                 className="rounded-md p-2 hover:bg-gray-200/15"
+                                title="Latest launcher release"
                             >
                                 <GithubIcon />
                             </a>
+                            <DownloadSheet />
+                            <ModsSheet />
+                            <SettingsSheet />
                             <a
                                 href="#"
                                 className={`rounded-md p-2 hover:bg-gray-200/15 ${transitioning ? "animate-pulse" : ""}`}

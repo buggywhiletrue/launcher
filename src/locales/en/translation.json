@@ -76,5 +76,10 @@
     "notice.widget.latestUpdate": "Latest update",
     "notice.widget.launcher": "Launcher",
     "notice.widget.client": "Client",
-    "notice.widget.releaseAvailable": "The latest public release is available on GitHub Releases."
+    "notice.widget.releaseAvailable": "The latest public release is available on GitHub Releases.",
+    "notice.widget.help": "View help",
+    "notice.widget.status.current": "You are using the latest version.",
+    "notice.widget.status.clientMismatch": "The client version does not match. Please update it.",
+    "notice.widget.status.launcherMismatch": "The launcher version does not match. Please update it.",
+    "notice.widget.status.bothMismatch": "The client and launcher versions do not match. Please update them."
 }

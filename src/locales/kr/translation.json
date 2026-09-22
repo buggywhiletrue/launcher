@@ -76,5 +76,10 @@
     "notice.widget.latestUpdate": "최신 업데이트",
     "notice.widget.launcher": "런처",
     "notice.widget.client": "클라이언트",
-    "notice.widget.releaseAvailable": "GitHub Releases에 최신 공개 버전이 등록되었습니다."
+    "notice.widget.releaseAvailable": "GitHub Releases에 최신 공개 버전이 등록되었습니다.",
+    "notice.widget.help": "도움말 보기",
+    "notice.widget.status.current": "최신 버전입니다.",
+    "notice.widget.status.clientMismatch": "클라이언트의 버전이 일치하지 않습니다. 업데이트를 진행해 주세요.",
+    "notice.widget.status.launcherMismatch": "런처의 버전이 일치하지 않습니다. 업데이트를 진행해 주세요.",
+    "notice.widget.status.bothMismatch": "클라이언트 및 런처의 버전이 일치하지 않습니다. 업데이트를 진행해 주세요."
 }
