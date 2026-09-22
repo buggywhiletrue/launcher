@@ -257,7 +257,7 @@ export const NoticeWidget = () => {
                                 - {formatReleaseDate(latestRelease.published_at)}
                             </span>
                         </h2>
-                        <div className="grid grid-cols-2 items-center gap-x-3 px-2 text-xs">
+                        <div className="grid grid-cols-2 items-center gap-x-3 px-2 text-sm font-semibold">
                             {clientRelease && (
                                 <div className="flex items-center justify-center gap-1">
                                     <VersionStatus current={clientIsCurrent} />
@@ -273,7 +273,7 @@ export const NoticeWidget = () => {
                                 </div>
                             )}
                         </div>
-                        <p className="flex min-h-8 items-center justify-center text-xs text-gray-700">
+                        <p className="flex min-h-8 items-center justify-center text-sm font-semibold text-gray-700">
                             {statusMessage}
                         </p>
                         <Button
