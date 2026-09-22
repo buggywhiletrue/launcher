@@ -258,7 +258,7 @@ export const NoticeWidget = () => {
                                 {formatReleaseDate(latestRelease.published_at)}
                             </h2>
                         </div>
-                        <div className="mt-1 flex items-center gap-x-3 px-0.5 text-[0.8rem] leading-none">
+                        <div className="mt-2 flex items-center gap-x-3 px-0.5 text-[0.8rem] leading-normal">
                             {clientRelease && (
                                 <div className="flex items-center gap-1 whitespace-nowrap">
                                     <VersionStatus current={clientIsCurrent} />
@@ -274,13 +274,13 @@ export const NoticeWidget = () => {
                                 </div>
                             )}
                         </div>
-                        <p className="mt-1 px-0.5 text-left text-[0.8rem] leading-tight text-gray-700">
+                        <p className="hidden mt-1 px-0.5 text-left text-[0.8rem] leading-tight text-gray-700">
                             {statusMessage}
                         </p>
                         <Button
                             variant="maplestory_primary"
                             size="maplestory"
-                            className="mt-auto w-full"
+                            className="mt-2 w-full"
                             onClick={() =>
                                 window.open(
                                     "https://app.notion.com/p/MapleStory2-38eafc48a0d280619472feafb97daf6b?source=copy_link",
