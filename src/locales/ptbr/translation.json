@@ -88,5 +88,7 @@
     "download.install.githubReleases": "Ver no GitHub Releases",
     "download.install.githubReleases.info": "Abre a página de versões do cliente no navegador.",
     "download.install.drive": "Ver no Drive",
-    "download.install.drive.info": "Abre a página alternativa de download no navegador."
+    "download.install.drive.info": "Abre a página alternativa de download no navegador.",
+    "server.add.username.placeholder": "Letras minúsculas e números",
+    "server.add.password.placeholder": "Letras minúsculas e números"
 }

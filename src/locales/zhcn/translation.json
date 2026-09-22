@@ -88,5 +88,7 @@
     "download.install.githubReleases": "在GitHub Releases中查看",
     "download.install.githubReleases.info": "在浏览器中打开客户端发布页面。",
     "download.install.drive": "在云端硬盘中查看",
-    "download.install.drive.info": "在浏览器中打开备用下载页面。"
+    "download.install.drive.info": "在浏览器中打开备用下载页面。",
+    "server.add.username.placeholder": "小写英文字母和数字",
+    "server.add.password.placeholder": "小写英文字母和数字"
 }

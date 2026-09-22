@@ -13,7 +13,7 @@ const customBackend = {
 i18n.use({ type: "backend", ...customBackend })
     .use(initReactI18next)
     .init({
-        lng: "en",
+        lng: "kr",
         fallbackLng: "en",
         interpolation: { escapeValue: false },
         ns: ["translation"],

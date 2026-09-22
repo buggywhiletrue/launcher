@@ -87,5 +87,7 @@
     "header.launcherUpdate": "런처 업데이트",
     "header.settings": "설정",
     "notice.widget.status.upToDate": "최신 버전",
-    "notice.widget.status.updateRequired": "업데이트 필요 또는 버전 확인 불가"
+    "notice.widget.status.updateRequired": "업데이트 필요 또는 버전 확인 불가",
+    "server.add.username.placeholder": "영소문자 및 숫자",
+    "server.add.password.placeholder": "영소문자 및 숫자"
 }

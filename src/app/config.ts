@@ -23,12 +23,12 @@ export interface ServerEntry {
 }
 
 export const APP_CONFIG = {
-    language: "en",
+    language: "kr",
     clientPath: "",
     servers: [] as ServerEntry[],
 
     enableConsole: false,
-    autoLogin: false,
+    autoLogin: true,
 
     audioEnabled: false,
     audioVolume: 25,

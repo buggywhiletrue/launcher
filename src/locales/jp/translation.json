@@ -88,5 +88,7 @@
     "download.install.githubReleases": "GitHub Releasesで見る",
     "download.install.githubReleases.info": "クライアントのリリースページをブラウザで開きます。",
     "download.install.drive": "ドライブで見る",
-    "download.install.drive.info": "代替ダウンロードページをブラウザで開きます。"
+    "download.install.drive.info": "代替ダウンロードページをブラウザで開きます。",
+    "server.add.username.placeholder": "英小文字と数字",
+    "server.add.password.placeholder": "英小文字と数字"
 }

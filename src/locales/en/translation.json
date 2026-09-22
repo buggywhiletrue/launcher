@@ -87,5 +87,7 @@
     "header.launcherUpdate": "Launcher update",
     "header.settings": "Settings",
     "notice.widget.status.upToDate": "Up to date",
-    "notice.widget.status.updateRequired": "Update required or version unknown"
+    "notice.widget.status.updateRequired": "Update required or version unknown",
+    "server.add.username.placeholder": "Lowercase letters and numbers",
+    "server.add.password.placeholder": "Lowercase letters and numbers"
 }

@@ -21,7 +21,7 @@ let previewConfig = {
     clientPath: "C:\\MapleStory2",
     servers: [] as ServerEntry[],
     enableConsole: false,
-    autoLogin: false,
+    autoLogin: true,
     audioEnabled: false,
     audioVolume: 25,
     modDeveloper: false,
