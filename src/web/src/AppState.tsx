@@ -44,7 +44,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
     const [appVersion, setAppVersion] = useState<string>("1.6.9");
-    const [language, _setLanguage] = useState<string>("en");
+    const [language, _setLanguage] = useState<string>("kr");
     const [clientPath, _setClientPath] = useState<string>("");
 
     const setLanguage = useCallback((lang: string) => {
@@ -59,7 +59,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }, []);
 
     const [enableConsole, _setEnableConsole] = useState<boolean>(false);
-    const [autoLogin, _setAutoLogin] = useState<boolean>(false);
+    const [autoLogin, _setAutoLogin] = useState<boolean>(true);
     const [audioEnabled, _setAudioEnabled] = useState<boolean>(false);
     const [audioVolume, _setAudioVolume] = useState<number>(25);
 

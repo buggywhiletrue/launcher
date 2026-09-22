@@ -5,10 +5,11 @@ import { backgrounds } from "../assets/backgrounds.mjs";
 import { characters } from "../assets/characters.mjs";
 import { SettingsSheet } from "./SettingsSheet";
 import { GithubIcon } from "lucide-react";
+import { t } from "i18next";
 import { useAppState } from "./AppState";
 import { ServerList } from "./serverlist/ServerList";
 import { DownloadSheet } from "./download/DownloadSheet";
-import { DiscordWidget } from "./Discord";
+import { NoticeWidget } from "./Discord";
 import { MusicPlayer } from "./MusicPlayer";
 import { ModsSheet } from "./mods/ModsSheet";
 import { DownloadProgress } from "./download/DownloadProgress";
@@ -30,7 +31,7 @@ function App() {
         if (nextBg === randBackground) {
             return getUniqueRandomBackground();
         }
-        
+
         return nextBg;
     };
 
@@ -81,7 +82,7 @@ function App() {
                 {backgrounds.map((bg, i) => (
                     <div
                         key={i}
-                        className="absolute pointer-events-none -z-10 h-full w-full bg-cover bg-fixed bg-center transition-opacity duration-1000 ease-in-out"
+                        className="pointer-events-none absolute -z-10 h-full w-full bg-cover bg-fixed bg-center transition-opacity duration-1000 ease-in-out"
                         style={{
                             backgroundImage: `url('${bg}')`,
                             opacity: randBackground === i ? "100%" : "0%",
@@ -90,20 +91,20 @@ function App() {
                 ))}
                 <div className="flex h-full w-full flex-col gap-2 text-white">
                     <h1 className="z-10 flex w-full items-center justify-between bg-black/50 p-4 text-[1rem] font-bold">
-                        <div className="flex gap-1">
-                            Mushroom Launcher 2
-                        </div>
+                        <div className="flex gap-1">Mushroom Launcher 2</div>
                         <div className="flex h-6 items-center gap-2">
-                            <DownloadSheet />
                             <ModsSheet />
-                            <SettingsSheet />
+                            <DownloadSheet />
                             <a
-                                href="https://github.com/buggywhiletrue/launcher"
+                                href="https://github.com/buggywhiletrue/launcher/releases/latest"
                                 target="_blank"
+                                rel="noreferrer"
                                 className="rounded-md p-2 hover:bg-gray-200/15"
+                                title={t("header.launcherUpdate", "Launcher update")}
                             >
                                 <GithubIcon />
                             </a>
+                            <SettingsSheet />
                             <a
                                 href="#"
                                 className={`rounded-md p-2 hover:bg-gray-200/15 ${transitioning ? "animate-pulse" : ""}`}
@@ -122,7 +123,7 @@ function App() {
                                 <ServerList />
                             </div>
                             <div className="w-[32rem]">
-                                <DiscordWidget guildId="1233581457470128209" />
+                                <NoticeWidget />
                             </div>
                         </div>
                     </div>
@@ -136,8 +137,9 @@ function App() {
                             className="slide-in-from-right-100 w-[22rem] drop-shadow-md transition-opacity duration-500 ease-in-out"
                             style={{
                                 opacity: randCharacter === -1 ? "0%" : "100%",
-                                transform: `translate(calc(${cursorPosition.x * 0.01
-                                    }px), calc(${cursorPosition.y * 0.01}px))`,
+                                transform: `translate(calc(${
+                                    cursorPosition.x * 0.01
+                                }px), calc(${cursorPosition.y * 0.01}px))`,
                             }}
                         />
                     </div>

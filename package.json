@@ -1,12 +1,13 @@
 {
     "name": "maplestory2-launcher",
     "productName": "MapleStory2 Launcher",
-    "version": "2.0.3",
+    "version": "2.0.3-r2",
     "description": "MS2 Launcher edited by Buggy",
     "main": ".vite/build/main.js",
     "private": true,
     "scripts": {
         "start": "electron-forge start",
+        "preview:web": "vite --config vite.preview.config.mts",
         "package": "electron-forge package",
         "make": "electron-forge make",
         "publish": "electron-forge publish",

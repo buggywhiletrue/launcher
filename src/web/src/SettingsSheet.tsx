@@ -79,7 +79,10 @@ export const SettingsSheet = () => {
                     }
                 }}
             >
-                <SheetTrigger className="cursor-pointer rounded-md p-2 hover:bg-gray-200/15">
+                <SheetTrigger
+                    className="cursor-pointer rounded-md p-2 hover:bg-gray-200/15"
+                    title={t("header.settings", "Settings")}
+                >
                     <Settings />
                 </SheetTrigger>
                 <SheetContent>

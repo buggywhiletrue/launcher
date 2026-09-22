@@ -186,7 +186,7 @@ export const ServerSheet = (props: {
                                         </Label>
                                         <Input
                                             id="ip"
-                                            placeholder="127.0.0.1"
+                                            placeholder="maple2.servegame.com"
                                             value={ip}
                                             onChange={(e) =>
                                                 setIp(e.target.value)
@@ -226,7 +226,10 @@ export const ServerSheet = (props: {
                                         </Label>
                                         <Input
                                             id="username"
-                                            placeholder="optional"
+                                            placeholder={t(
+                                                "server.add.username.placeholder",
+                                                "Lowercase letters and numbers",
+                                            )}
                                             value={username}
                                             onChange={(e) =>
                                                 setUsername(e.target.value)
@@ -251,7 +254,10 @@ export const ServerSheet = (props: {
                                                     ? "text"
                                                     : "password"
                                             }
-                                            placeholder="optional"
+                                            placeholder={t(
+                                                "server.add.password.placeholder",
+                                                "Lowercase letters and numbers",
+                                            )}
                                             value={password}
                                             onChange={(e) =>
                                                 setPassword(e.target.value)
