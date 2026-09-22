@@ -19,8 +19,20 @@ import { Container } from "../Container";
 import { LaunchClient } from "../client/LaunchClient";
 import { ScrollArea } from "@/web/components/ui/scroll-area";
 
-import DEFAULT_ICON from "../../assets/mushroom.png";
 import SERVERS_ICON from "../../assets/server-icon.png";
+import SERVER_ROW_ICON_01 from "../../assets/server-row-01.png";
+import SERVER_ROW_ICON_02 from "../../assets/server-row-02.png";
+import SERVER_ROW_ICON_03 from "../../assets/server-row-03.png";
+import SERVER_ROW_ICON_04 from "../../assets/server-row-04.png";
+import SERVER_ROW_ICON_05 from "../../assets/server-row-05.png";
+
+const SERVER_ROW_ICONS = [
+    SERVER_ROW_ICON_01,
+    SERVER_ROW_ICON_02,
+    SERVER_ROW_ICON_03,
+    SERVER_ROW_ICON_04,
+    SERVER_ROW_ICON_05,
+];
 
 export function RemoveServerDialog({
     server,
@@ -209,7 +221,7 @@ export const ServerList = () => {
                                         )}
                                         <img
                                             className={`h-8 w-8 rounded-sm border border-[#A0A0A0] bg-black/15 p-0.5 ${server.online ? "" : "grayscale"}`}
-                                            src={DEFAULT_ICON}
+                                            src={SERVER_ROW_ICONS[idx % SERVER_ROW_ICONS.length]}
                                         />
                                         <div className="font-bold text-shadow-sm/50 text-shadow-white">
                                             {server.name}
