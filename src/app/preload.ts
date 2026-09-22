@@ -31,6 +31,8 @@ contextBridge.exposeInMainWorld("electron", {
     getDownloadProgress: () => ipcRenderer.invoke("get-download-progress"),
     getDownloadFile: () => ipcRenderer.invoke("get-download-file"),
     getDownloadEta: () => ipcRenderer.invoke("get-download-eta"),
+    getInstalledClientVersion: () =>
+        ipcRenderer.invoke("get-installed-client-version"),
     downloadClient: (provider: string) =>
         ipcRenderer.invoke("download-client", provider),
 

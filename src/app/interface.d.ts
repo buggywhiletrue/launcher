@@ -25,6 +25,7 @@ export interface IElectronAPI {
     getDownloadProgress: () => Promise<number>;
     getDownloadFile: () => Promise<string>;
     getDownloadEta: () => Promise<number>;
+    getInstalledClientVersion: () => Promise<string | null>;
     downloadClient: (provider: string) => Promise<void>;
 
     getServerList: () => Promise<ServerEntry[]>;

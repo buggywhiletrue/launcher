@@ -30,6 +30,37 @@ ipcMain.handle("get-download-eta", async () => {
     return downloadEta;
 });
 
+const CLIENT_INSTALL_STATE_FILE = ".buggy-client-install.json";
+
+interface ClientInstallState {
+    clientVersion: string;
+    releaseTag: string;
+    installedAt: string;
+}
+
+const getInstalledClientVersion = (): string | null => {
+    if (!APP_CONFIG.clientPath) return null;
+
+    try {
+        const statePath = path.join(
+            APP_CONFIG.clientPath,
+            CLIENT_INSTALL_STATE_FILE,
+        );
+        const state = JSON.parse(
+            fs.readFileSync(statePath, "utf-8"),
+        ) as Partial<ClientInstallState>;
+        return typeof state.clientVersion === "string"
+            ? state.clientVersion
+            : null;
+    } catch {
+        return null;
+    }
+};
+
+ipcMain.handle("get-installed-client-version", async () =>
+    getInstalledClientVersion(),
+);
+
 ipcMain.handle("download-client", async (_, provider) => {
     downloadProgress = 0;
     currentFileDownload = "";
@@ -598,6 +629,24 @@ const GithubClient = async (clientPath: string) => {
             const obsoletePath = resolveClientPath(clientPath, relativePath);
             fs.rmSync(obsoletePath, { recursive: true, force: true });
         }
+
+        const installStatePath = resolveClientPath(
+            clientPath,
+            CLIENT_INSTALL_STATE_FILE,
+        );
+        const installStateTempPath = `${installStatePath}.partial`;
+        const installState: ClientInstallState = {
+            clientVersion: manifest.clientVersion,
+            releaseTag: manifest.releaseTag,
+            installedAt: new Date().toISOString(),
+        };
+        fs.writeFileSync(
+            installStateTempPath,
+            `${JSON.stringify(installState, null, 2)}\n`,
+            "utf-8",
+        );
+        if (fs.existsSync(installStatePath)) fs.unlinkSync(installStatePath);
+        fs.renameSync(installStateTempPath, installStatePath);
 
         downloadProgress = 100;
         downloadEta = 0;

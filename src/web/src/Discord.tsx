@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Container } from "./Container";
+import { useAppState } from "./AppState";
 import { t } from "i18next";
 
 import FRIENDS_ICON from "../assets/friends-icon.png";
@@ -96,18 +97,55 @@ const formatVersion = (tagName: string) => {
     return version ? `v${version}` : tagName;
 };
 
+const normalizedVersion = (value: string | null | undefined) =>
+    value?.match(/\d+(?:\.\d+){2,3}/)?.[0] ?? null;
+
+const versionsMatch = (
+    installedVersion: string | null | undefined,
+    releaseTag: string,
+) => {
+    const installed = normalizedVersion(installedVersion);
+    const latest = normalizedVersion(releaseTag);
+    return installed !== null && latest !== null && installed === latest;
+};
+
+const VersionStatus = ({ current }: { current: boolean }) =>
+    current ? (
+        <div
+            className="h-3 w-3 rounded-full bg-green-300"
+            title="Up to date"
+        />
+    ) : (
+        <div
+            className="flex h-3 w-3 items-center justify-center rounded-full bg-gray-400"
+            title="Update required or version unknown"
+        >
+            <div className="h-1 w-1 rounded-full bg-gray-500" />
+        </div>
+    );
+
 export const NoticeWidget = () => {
+    const { appVersion } = useAppState();
     const [releases, setReleases] = useState<ReleaseSummary[] | null>(null);
+    const [installedClientVersion, setInstalledClientVersion] = useState<
+        string | null
+    >(null);
 
     useEffect(() => {
         let active = true;
 
         const fetchReleases = async () => {
-            const results = await Promise.allSettled([
-                fetchLatestRelease("launcher"),
-                fetchLatestRelease("client"),
+            const [results, clientVersion] = await Promise.all([
+                Promise.allSettled([
+                    fetchLatestRelease("launcher"),
+                    fetchLatestRelease("client"),
+                ]),
+                window.electron
+                    .getInstalledClientVersion()
+                    .catch(() => null),
             ]);
             if (!active) return;
+            setInstalledClientVersion(clientVersion);
 
             const available: ReleaseSummary[] = [];
             results.forEach((result) => {
@@ -191,20 +229,28 @@ export const NoticeWidget = () => {
                             </span>
                         </h2>
                         <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs">
-                            {launcherRelease && (
-                                <div className="flex items-center gap-1">
-                                    <div className="h-3 w-3 rounded-full bg-green-300" />
-                                    {t("notice.widget.launcher", "Launcher")}{" "}
-                                    {formatVersion(launcherRelease.tag_name)}
-                                </div>
-                            )}
                             {clientRelease && (
                                 <div className="flex items-center gap-1">
-                                    <div className="flex h-3 w-3 items-center justify-center rounded-full bg-gray-400">
-                                        <div className="h-1 w-1 rounded-full bg-gray-500" />
-                                    </div>
+                                    <VersionStatus
+                                        current={versionsMatch(
+                                            installedClientVersion,
+                                            clientRelease.tag_name,
+                                        )}
+                                    />
                                     {t("notice.widget.client", "Client")}{" "}
                                     {formatVersion(clientRelease.tag_name)}
+                                </div>
+                            )}
+                            {launcherRelease && (
+                                <div className="flex items-center gap-1">
+                                    <VersionStatus
+                                        current={versionsMatch(
+                                            appVersion,
+                                            launcherRelease.tag_name,
+                                        )}
+                                    />
+                                    {t("notice.widget.launcher", "Launcher")}{" "}
+                                    {formatVersion(launcherRelease.tag_name)}
                                 </div>
                             )}
                         </div>

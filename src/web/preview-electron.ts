@@ -116,6 +116,7 @@ if (!window.electron) {
         getDownloadProgress: async () => 0,
         getDownloadFile: async () => "",
         getDownloadEta: async () => -1,
+        getInstalledClientVersion: async () => "3.0.1",
         downloadClient: async (provider) => {
             if (provider === "github-releases") {
                 window.open(
