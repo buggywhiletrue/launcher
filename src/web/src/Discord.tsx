@@ -104,7 +104,7 @@ const formatVersion = (tagName: string) => {
 };
 
 const normalizedVersion = (value: string | null | undefined) =>
-    value?.match(/\d+(?:\.\d+){2,3}/)?.[0] ?? null;
+    value?.match(/\d+(?:\.\d+){2,3}(?:-r\d+)?/i)?.[0].toLowerCase() ?? null;
 
 const versionsMatch = (
     installedVersion: string | null | undefined,
