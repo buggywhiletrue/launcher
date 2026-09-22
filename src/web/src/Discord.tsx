@@ -87,7 +87,11 @@ const formatReleaseDate = (publishedAt: string) => {
     }).formatToParts(new Date(publishedAt));
     const getPart = (type: Intl.DateTimeFormatPartTypes) =>
         parts.find((part) => part.type === type)?.value ?? "";
-    return [getPart("year"), getPart("month"), getPart("day")].join(".");
+    return [
+        getPart("year").slice(-2),
+        getPart("month"),
+        getPart("day"),
+    ].join("");
 };
 
 const formatVersion = (tagName: string) => {
@@ -254,7 +258,7 @@ export const NoticeWidget = () => {
                                 />
                             </span>
                             <h2 className="min-w-0 flex-1 whitespace-nowrap text-left text-[0.95rem] font-bold leading-tight">
-                                Latest update{" "}
+                                Latest Update{" "}
                                 {formatReleaseDate(latestRelease.published_at)}
                             </h2>
                         </div>

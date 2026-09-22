@@ -231,11 +231,7 @@ export const ServerList = () => {
                                 <div
                                     key={idx}
                                     className={`h-12 w-full ${
-                                        (blanks.length % 2 == 0
-                                            ? idx
-                                            : idx + 1) %
-                                            2 ===
-                                        0
+                                        (servers.length + idx) % 2 === 0
                                             ? "bg-[#EDEDED] hover:bg-white"
                                             : "bg-[#E7E7E7] hover:bg-white"
                                     }`}
