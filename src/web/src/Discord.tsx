@@ -256,7 +256,7 @@ export const NoticeWidget = () => {
                                 <img
                                     src={NOTICE_TITLE_ICON}
                                     alt=""
-                                    className="h-12 w-12 max-w-none scale-95 object-contain"
+                                    className="h-12 w-12 max-w-none scale-[0.97] object-contain"
                                 />
                                 <img
                                     src={MUSHROOM_ICON}

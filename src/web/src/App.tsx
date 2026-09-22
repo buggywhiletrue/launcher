@@ -92,6 +92,7 @@ function App() {
                     <h1 className="z-10 flex w-full items-center justify-between bg-black/50 p-4 text-[1rem] font-bold">
                         <div className="flex gap-1">Mushroom Launcher 2</div>
                         <div className="flex h-6 items-center gap-2">
+                            <ModsSheet />
                             <DownloadSheet />
                             <a
                                 href="https://github.com/buggywhiletrue/launcher/releases/latest"
@@ -102,7 +103,6 @@ function App() {
                             >
                                 <GithubIcon />
                             </a>
-                            <ModsSheet />
                             <SettingsSheet />
                             <a
                                 href="#"
