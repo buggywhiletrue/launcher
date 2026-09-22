@@ -7,6 +7,7 @@ import { t } from "i18next";
 import FRIENDS_ICON from "../assets/friends-icon.png";
 import MUSHROOM_ICON from "../assets/mushroom.png";
 import NOTICE_WIDGET_ICON from "../assets/notice-widget-icon.png";
+import NOTICE_TITLE_ICON from "../assets/notice-title-icon.png";
 
 const RELEASE_REFRESH_INTERVAL = 30 * 60 * 1000;
 const RELEASE_ENDPOINTS = {
@@ -253,9 +254,14 @@ export const NoticeWidget = () => {
                         <div className="flex items-center gap-2">
                             <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-[#8E8E8E] bg-[#D8D8D8]">
                                 <img
+                                    src={NOTICE_TITLE_ICON}
+                                    alt=""
+                                    className="h-12 w-12 max-w-none object-contain"
+                                />
+                                <img
                                     src={MUSHROOM_ICON}
                                     alt=""
-                                    className="h-full w-full object-contain p-0.5"
+                                    className="hidden"
                                 />
                                 <img
                                     src={NOTICE_WIDGET_ICON}
