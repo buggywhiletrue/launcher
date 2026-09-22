@@ -112,12 +112,12 @@ const versionsMatch = (
 const VersionStatus = ({ current }: { current: boolean }) =>
     current ? (
         <div
-            className="h-3 w-3 rounded-full bg-green-300"
+            className="h-3 w-3 shrink-0 rounded-full bg-green-300"
             title="Up to date"
         />
     ) : (
         <div
-            className="flex h-3 w-3 items-center justify-center rounded-full bg-gray-400"
+            className="flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-gray-400"
             title="Update required or version unknown"
         >
             <div className="h-1 w-1 rounded-full bg-gray-500" />
@@ -224,7 +224,7 @@ export const NoticeWidget = () => {
                 </div>
             }
         >
-            <div className="flex min-h-[8.25rem] flex-col gap-2 rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#F2F2F2] to-[#CECECE] p-2 text-center text-black text-shadow-sm/100 text-shadow-white">
+            <div className="flex min-h-[8.25rem] flex-col gap-2 rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#CECECE] to-[#F2F2F2] p-2 text-center text-black text-shadow-sm/100 text-shadow-white">
                 {releases === null && (
                     <div className="flex flex-1 items-center justify-center text-sm text-gray-600">
                         {t(
@@ -250,32 +250,31 @@ export const NoticeWidget = () => {
                                 <Bell size={22} />
                             </span>
                             <span className="line-clamp-1">
-                                {t(
-                                    "notice.widget.latestUpdate",
-                                    "Latest update",
-                                )}{" "}
+                                Latest update{" "}
                                 {formatReleaseDate(latestRelease.published_at)}
                             </span>
                         </h2>
-                        <div className="grid grid-cols-2 items-center gap-x-3 px-2 text-[0.8rem] font-semibold">
-                            {clientRelease && (
-                                <div className="flex items-center justify-center gap-1 whitespace-nowrap">
-                                    <VersionStatus current={clientIsCurrent} />
-                                    {t("notice.widget.client", "Client")}{" "}
-                                    {formatVersion(clientRelease.tag_name)}
-                                </div>
-                            )}
-                            {launcherRelease && (
-                                <div className="flex items-center justify-center gap-1 whitespace-nowrap">
-                                    <VersionStatus current={launcherIsCurrent} />
-                                    {t("notice.widget.launcher", "Launcher")}{" "}
-                                    {formatVersion(launcherRelease.tag_name)}
-                                </div>
-                            )}
+                        <div className="flex flex-col gap-1">
+                            <div className="grid grid-cols-2 items-center gap-x-3 px-2 text-[0.8rem]">
+                                {clientRelease && (
+                                    <div className="flex items-center justify-start gap-1 whitespace-nowrap">
+                                        <VersionStatus current={clientIsCurrent} />
+                                        Client{" "}
+                                        {formatVersion(clientRelease.tag_name)}
+                                    </div>
+                                )}
+                                {launcherRelease && (
+                                    <div className="flex items-center justify-start gap-1 whitespace-nowrap">
+                                        <VersionStatus current={launcherIsCurrent} />
+                                        Launcher{" "}
+                                        {formatVersion(launcherRelease.tag_name)}
+                                    </div>
+                                )}
+                            </div>
+                            <p className="px-2 text-left text-sm text-gray-700">
+                                {statusMessage}
+                            </p>
                         </div>
-                        <p className="flex min-h-8 items-center justify-center text-sm font-semibold text-gray-700">
-                            {statusMessage}
-                        </p>
                         <Button
                             variant="maplestory_primary"
                             size="maplestory"
