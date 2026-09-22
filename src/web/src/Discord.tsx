@@ -224,7 +224,7 @@ export const NoticeWidget = () => {
                 </div>
             }
         >
-            <div className="flex min-h-[8.25rem] flex-col gap-2 rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#F2F2F2] via-[#CECECE] to-[#EEEEEE] p-2 text-center text-black text-shadow-sm/100 text-shadow-white">
+            <div className="flex min-h-[8.25rem] flex-col gap-2 rounded-sm border-2 border-[#594901] bg-gradient-to-t from-[#F2F2F2] to-[#CECECE] p-2 text-center text-black text-shadow-sm/100 text-shadow-white">
                 {releases === null && (
                     <div className="flex flex-1 items-center justify-center text-sm text-gray-600">
                         {t(
@@ -254,19 +254,19 @@ export const NoticeWidget = () => {
                                     "notice.widget.latestUpdate",
                                     "Latest update",
                                 )}{" "}
-                                - {formatReleaseDate(latestRelease.published_at)}
+                                {formatReleaseDate(latestRelease.published_at)}
                             </span>
                         </h2>
-                        <div className="grid grid-cols-2 items-center gap-x-3 px-2 text-sm font-semibold">
+                        <div className="grid grid-cols-2 items-center gap-x-3 px-2 text-[0.8rem] font-semibold">
                             {clientRelease && (
-                                <div className="flex items-center justify-center gap-1">
+                                <div className="flex items-center justify-center gap-1 whitespace-nowrap">
                                     <VersionStatus current={clientIsCurrent} />
                                     {t("notice.widget.client", "Client")}{" "}
                                     {formatVersion(clientRelease.tag_name)}
                                 </div>
                             )}
                             {launcherRelease && (
-                                <div className="flex items-center justify-center gap-1">
+                                <div className="flex items-center justify-center gap-1 whitespace-nowrap">
                                     <VersionStatus current={launcherIsCurrent} />
                                     {t("notice.widget.launcher", "Launcher")}{" "}
                                     {formatVersion(launcherRelease.tag_name)}
