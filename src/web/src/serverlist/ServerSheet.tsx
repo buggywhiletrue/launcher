@@ -186,7 +186,7 @@ export const ServerSheet = (props: {
                                         </Label>
                                         <Input
                                             id="ip"
-                                            placeholder="127.0.0.1"
+                                            placeholder="maple2.servegame.com"
                                             value={ip}
                                             onChange={(e) =>
                                                 setIp(e.target.value)
